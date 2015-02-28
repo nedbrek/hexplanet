@@ -1,0 +1,6 @@
+/src/*.o
+/src/*.d
+/test/*.o
+/test/*.d
+/hex_planet.exe
+/test/loadTest.exe
