@@ -33,15 +33,15 @@ const int PlanetGui::kMaxSubdivisionLevel = 6;
 //=============================
 PlanetGui::PlanetGui( int gluiMainWin ) :
 	m_gluiMainWin( gluiMainWin ),
-	m_subdLevel ( 3 ),
-	m_drawMode( HexPlanet::DrawMode_TERRAIN ),
-	m_terrRandom( 0.17f ),
-	m_terrWatery( 0.5f ),
 	m_cursorHex( 0 ),
 	m_mouseOnSurface( false ),
-	m_paintTile( HexTile::Terrain_DESERT ),
 	m_beautyMode( 1 ),
-	m_showStats( 1 )
+	m_showStats( 1 ),
+	m_subdLevel ( 3 ),
+	m_drawMode( HexPlanet::DrawMode_TERRAIN ),
+	m_paintTile( HexTile::Terrain_DESERT ),
+	m_terrRandom( 0.17f ),
+	m_terrWatery( 0.5f )
 {
 	// singleton
 	assert( s_theGUI == NULL );
