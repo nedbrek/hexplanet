@@ -71,6 +71,11 @@ protected:
 	GLuint m_planetDlist;
 	bool m_planetDirty;	
 
+	// FPS state
+	int m_numFrames;
+	int m_previousTime;
+	float m_lastFPS;
+
 	// display params
 	int m_beautyMode;
 	int m_showStats;

@@ -35,6 +35,8 @@ PlanetGui::PlanetGui( int gluiMainWin ) :
 	m_gluiMainWin( gluiMainWin ),
 	m_cursorHex( 0 ),
 	m_mouseOnSurface( false ),
+	m_numFrames( 0 ),
+	m_lastFPS( 0 ),
 	m_beautyMode( 1 ),
 	m_showStats( 1 ),
 	m_subdLevel ( 3 ),
@@ -46,6 +48,8 @@ PlanetGui::PlanetGui( int gluiMainWin ) :
 	// singleton
 	assert( s_theGUI == NULL );
 	s_theGUI = this;
+
+	m_previousTime = glutGet(GLUT_ELAPSED_TIME);
 
 	// initialize planet rotation
 	memcpy( m_rotPlanet, _ident, sizeof( _ident ) );
@@ -389,41 +393,65 @@ void PlanetGui::redraw()
 
 		gfEnableFont( m_fntConsole, 20 );			
 
+		const int ROW_SIZE = 20;
+		int pixelRow = th - ROW_SIZE;
+
 		gfBeginText();
 
 		glPushMatrix();	
-		glTranslated( 20, th-20, 0 );
+		glTranslated( 20, pixelRow, 0 );
 		gfDrawStringFmt( "# of hexes: %d\n", m_planet->getNumHexes() );
 		glPopMatrix();	
+		pixelRow -= ROW_SIZE;
 
 		glPushMatrix();	
-		glTranslated( 20, th-40, 0 );
+		glTranslated( 20, pixelRow, 0 );
 		gfDrawStringFmt( "# of Triangles: %d\n", m_planet->m_hexdual.size() );
 		glPopMatrix();	
+		pixelRow -= ROW_SIZE;
+
+		glPushMatrix();	
+		glTranslated( 20, pixelRow, 0 );
+		gfDrawStringFmt( "FPS: %f\n", m_lastFPS );
+		glPopMatrix();	
+		pixelRow -= ROW_SIZE;
 
 		if (m_mouseOnSurface)
 		{
 			glPushMatrix();	
-			glTranslated( 20, th-60, 0 );
+			glTranslated( 20, pixelRow, 0 );
 			gfDrawStringFmt( "Curr Hex: %d\n", m_cursorHex );
 			glPopMatrix();	
+			pixelRow -= ROW_SIZE;
 
 			glPushMatrix();	
-			glTranslated( 20, th-80, 0 );
+			glTranslated( 20, pixelRow, 0 );
 			gfDrawStringFmt( "Curr Terrain: %d\n", 
 				m_planet->m_hexes[ m_cursorHex ].m_terrain );
 			glPopMatrix();	
+			pixelRow -= ROW_SIZE;
 
 			glPushMatrix();	
-			glTranslated( 20, th-100, 0 );
+			glTranslated( 20, pixelRow, 0 );
 			gfDrawStringFmt( "Num Neighbors: %d", nb.size() );
 			glPopMatrix();	
+			pixelRow -= ROW_SIZE;
 		}
 
 		gfEndText();
 	}
 
 	glDisable( GL_TEXTURE_2D );
+
+	++m_numFrames;
+	const int currentTime = glutGet(GLUT_ELAPSED_TIME);
+	const int deltaTime = currentTime - m_previousTime;
+	if (deltaTime > 1000)
+	{
+		m_lastFPS = m_numFrames / (deltaTime / 1000.f);
+		m_numFrames = 0;
+		m_previousTime = currentTime;
+	}
 }
 
 void PlanetGui::drawAtmosphere()
