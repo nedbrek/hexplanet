@@ -81,6 +81,29 @@ HexPlanet::HexPlanet( int subd_level, float trandom, float twatery  ) :
 	}
 }
 
+void HexPlanet::write( std::ostream &o )
+{
+	o << "# " << m_hexes.size() << " Vertices" << std::endl;
+	for (std::vector<HexTile>::const_iterator i = m_hexes.begin(); i != m_hexes.end(); ++i)
+	{
+		  o << 'v'
+		  << ' ' << i->m_nrm[0]
+		  << ' ' << i->m_nrm[1]
+		  << ' ' << i->m_nrm[2]
+		  << std::endl;
+	}
+
+	o << "# " << m_hexdual.size() << " Faces" << std::endl;
+	for (std::vector<HexTri>::const_iterator i = m_hexdual.begin(); i != m_hexdual.end(); ++i)
+	{
+		o << 'f'
+		  << ' ' << i->m_hexA +1
+		  << ' ' << i->m_hexB +1
+		  << ' ' << i->m_hexC +1
+		  << std::endl;
+	}
+}
+
 //=============================
 // buildLevel0 -- builds the initial icosahedron
 // for the planet mesh

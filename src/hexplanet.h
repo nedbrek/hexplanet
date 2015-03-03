@@ -82,6 +82,8 @@ public:
 		DrawMode_TERRAINGRID,  // Terrain with grid
 	};
 
+	void write( std::ostream &o );
+
 	void draw( int draw_mode );
 
 	size_t getNumHexes();
