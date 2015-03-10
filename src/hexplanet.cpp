@@ -104,6 +104,36 @@ void HexPlanet::write( std::ostream &o )
 	}
 }
 
+void HexPlanet::read( std::istream &is )
+{
+	std::string line;
+	for (std::getline(is, line); !is.eof(); std::getline(is, line))
+	{
+		std::istringstream iss(line);
+		char firstChar;
+		iss >> firstChar;
+		if (firstChar == '#')
+		{
+			// comment - do nothing
+		}
+		else if (firstChar == 'v')
+		{
+			// vertex - 3 coordinates
+			// make into a hex
+			float x, y, z;
+			iss >> x >> y >> z;
+			m_hexes.push_back(HexTile(Imath::V3f(x, y, z)));
+		}
+		else if (firstChar == 'f')
+		{
+			// face - 3 vert indices
+			size_t x, y, z;
+			iss >> x >> y >> z;
+			m_hexdual.push_back(HexTri(x-1, y-1, z-1));
+		}
+	}
+}
+
 void HexPlanet::repairNormals()
 {
 	for (std::vector<HexTri>::iterator i = m_hexdual.begin(); i != m_hexdual.end(); ++i)

@@ -83,6 +83,7 @@ public:
 	};
 
 	void write( std::ostream &o );
+	void read( std::istream &i );
 
 	void repairNormals();
 
