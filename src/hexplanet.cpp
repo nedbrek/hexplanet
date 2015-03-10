@@ -104,6 +104,32 @@ void HexPlanet::write( std::ostream &o )
 	}
 }
 
+void HexPlanet::repairNormals()
+{
+	for (std::vector<HexTri>::iterator i = m_hexdual.begin(); i != m_hexdual.end(); ++i)
+	{
+		// pull three verts of triangle
+		const Imath::V3f p0 = m_hexes[i->m_hexA].m_nrm;
+		const Imath::V3f p1 = m_hexes[i->m_hexB].m_nrm;
+		const Imath::V3f p2 = m_hexes[i->m_hexC].m_nrm;
+		const Imath::V3f n = (p2 - p0).cross(p1 - p0);
+		const float d = n.dot(p0);
+		if ((d >= 0 && d < 0.001) || (d < 0 && d > -0.001))
+			std::cerr << "Triangle intersects origin" << std::endl;
+		else if (d > 0)
+		{
+			// reverse points
+			const size_t oldC = i->m_hexC;
+			i->m_hexC = i->m_hexA;
+			i->m_hexA = oldC;
+		}
+		else
+		{
+			// good
+		}
+	}
+}
+
 //=============================
 // buildLevel0 -- builds the initial icosahedron
 // for the planet mesh

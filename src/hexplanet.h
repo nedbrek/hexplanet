@@ -84,6 +84,8 @@ public:
 
 	void write( std::ostream &o );
 
+	void repairNormals();
+
 	void draw( int draw_mode );
 
 	size_t getNumHexes();
