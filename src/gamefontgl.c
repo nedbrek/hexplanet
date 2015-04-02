@@ -5,6 +5,7 @@
 #include <assert.h>
 
 #include "gamefontgl.h"
+#include <string.h>
 
 #ifdef _MSC_VER /* MSVC++ */
 #define vsnprintf _vsnprintf
@@ -295,7 +296,7 @@ void gfDisableFont()
 
 void gfBeginText()
 {
-	GLuint vp[4], txw, txh;
+	GLint vp[4], txw, txh;
 	assert( _activeFont );
 
 	/* set up texture mode */
@@ -368,7 +369,7 @@ void gfDrawString( const char *s )
 		} else if (*ch==' ') {
 			curr_x += (_activeCharset->pxlsize*0.5f); /* todo: fix this */
 		} else {
-			g = _activeCharset->glyph[*ch];
+			g = _activeCharset->glyph[(uint8_t)*ch];
 			if (g) {
 				
 			bl = curr_y - (g->h - g->baseline);
@@ -412,8 +413,8 @@ int gfGetStringWidth( const char *s )
 			lineW += (_activeCharset->pxlsize*0.5f); /* todo: fix this */
 		} else {
 			/* add this char to total */
-			if (_activeCharset->glyph[*ch]) {
-				lineW = lineW + _activeCharset->glyph[*ch]->w;
+			if (_activeCharset->glyph[(uint8_t)*ch]) {
+				lineW = lineW + _activeCharset->glyph[(uint8_t)*ch]->w;
 			}
 		}
 	}
