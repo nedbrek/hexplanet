@@ -2,19 +2,25 @@
 #include <cstdlib>
 #include <fstream>
 
+void printUsage()
+{
+	std::cerr << "Usage: loadTest.exe [-l <level>]|[<filename>]" << std::endl;
+	exit(1);
+}
+
 int main(int argc, char **argv)
 {
 	int level = 0;
 	if (argc < 2)
-	{
-		std::cerr << "Usage: " << argv[0] << "[-l <level>]|[<filename>]" << std::endl;
-		return 1;
-	}
+		printUsage();
 
 	bool hasFilename = true;
 	if (argv[1][0] == '-')
 	{
-		level = atoi(argv[1]);
+		if (argc < 3)
+			printUsage();
+
+		level = atoi(argv[2]);
 		hasFilename = false;
 	}
 
