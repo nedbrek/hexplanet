@@ -4,3 +4,4 @@
 /test/*.d
 /hex_planet.exe
 /test/loadTest.exe
+*.obj
