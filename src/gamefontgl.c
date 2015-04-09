@@ -204,23 +204,6 @@ int gfGetGlyphMetric( GLuint fontId, GLuint pxlsize, char glyph, GLuint metric )
 	return 0;
 }
 
-void gfSetFontMetric( GLuint fontId, GLuint metric, int value )
-{
-	gfFontImpl *font;
-	assert( (fontId) && (_gfFontIdTable[fontId]) );
-
-	font = _gfFontIdTable[fontId];
-	switch ( metric ) {			
-	
-	default:
-		assert(0);
-		break;
-	}	
-
-	/* not reached */
-	assert(0);	
-}
-
 void gfSetCharsetMetric( GLuint fontId, GLuint pxlsize, GLuint metric, int value )
 {
 	gfFontImpl *font;
