@@ -43,7 +43,8 @@ PlanetGui::PlanetGui( int gluiMainWin ) :
 	m_drawMode( HexPlanet::DrawMode_TERRAIN ),
 	m_paintTile( HexTile::Terrain_DESERT ),
 	m_terrRandom( 0.17f ),
-	m_terrWatery( 0.5f )
+	m_terrWatery( 0.5f ),
+	m_altitude(-2500.f)
 {
 	// singleton
 	assert( s_theGUI == NULL );
@@ -104,9 +105,10 @@ void PlanetGui::buildInterface()
 													"Sun", m_rotSun );
 	rotSun->set_spin( 1.0 );	
 
-	m_glui->add_column_to_panel( panel, false );
-	
+	m_glui->add_column_to_panel( rot_panel, false );
+	m_glui->add_translation_to_panel( rot_panel, "Altitude", GLUI_TRANSLATION_Z, &m_altitude);
 
+	m_glui->add_column_to_panel( panel, false );
 	// Planet Construction Panel
 	GLUI_Panel *construct_pane = m_glui->add_panel_to_panel(
 											panel, "Construction" );
@@ -256,7 +258,7 @@ void PlanetGui::redraw()
 
 	// camera distance
 	glLoadIdentity();
-	glTranslatef( 0.0, 0.0, -2500.0f );				
+	glTranslatef( 0.0, 0.0, m_altitude );				
 
 	// draw the "atmosphere"	
 	if (m_beautyMode)

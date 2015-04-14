@@ -96,6 +96,8 @@ protected:
 	float m_rotPlanet[16];
 	float m_rotSun[16];
 
+	float m_altitude;
+
 	// view from opengl
 	double m_modelView[16], m_projection[16];
 	int m_viewport[4];
