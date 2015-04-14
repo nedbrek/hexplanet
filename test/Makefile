@@ -1,7 +1,9 @@
 CXX ?= g++
 CXXFLAGS += -MP -MMD -Wall -g
-LDFLAGS += -Wall -lGLEW -lGL
+LDFLAGS += -Wall
+LIBS = -lGL -lGLEW
 
+# make sure all sources get dependencies loaded
 CXXSRC := ../src/hexplanet.cpp ../src/load_texture.cpp loadTest.cpp
 OBJ := $(CXXSRC:.cpp=.o)
 DEP := $(OBJ:.o=.d)
@@ -26,5 +28,5 @@ $(TESTS): test%: loadTest.exe
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 loadTest.exe: $(OBJ)
-	@$(CXX) -o $@ $^ $(LDFLAGS)
+	@$(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)
 
