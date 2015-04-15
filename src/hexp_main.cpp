@@ -186,6 +186,7 @@ int main( int argc, char *argv[])
 	// opengl setup
 	glEnable( GL_DEPTH_TEST );
 	glDepthFunc( GL_LEQUAL );
+	glEnable(GL_CULL_FACE);
 
 	// Call glut main loop  
 	glutMainLoop();
