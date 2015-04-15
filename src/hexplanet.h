@@ -21,10 +21,11 @@ struct HexTile
 {
 	HexTile( Imath::V3f p );	
 
+	Imath::V3f normal() const;
+
 	// the position of the vert in the tile,
 	// and the center of the hex in space
 	Imath::V3f m_vertPos;		
-	Imath::V3f m_nrm;
 
 	// Terrain Type
 	enum {

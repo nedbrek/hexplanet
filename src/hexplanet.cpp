@@ -31,7 +31,11 @@ HexTile::HexTile( Imath::V3f p ) :
 	m_vertPos( p )
 {
 	m_terrain = HexTile::Terrain_DESERT;
-	m_nrm = p.normalize();
+}
+
+Imath::V3f HexTile::normal() const
+{
+	return m_vertPos.normalized();
 }
 
 HexTri::HexTri( size_t a, size_t b, size_t c) :
@@ -86,10 +90,11 @@ void HexPlanet::write( std::ostream &o )
 	o << "# " << m_hexes.size() << " Vertices" << std::endl;
 	for (std::vector<HexTile>::const_iterator i = m_hexes.begin(); i != m_hexes.end(); ++i)
 	{
+		  const Imath::V3f nrm = i->normal();
 		  o << 'v'
-		  << ' ' << i->m_nrm[0]
-		  << ' ' << i->m_nrm[1]
-		  << ' ' << i->m_nrm[2]
+		  << ' ' << nrm[0]
+		  << ' ' << nrm[1]
+		  << ' ' << nrm[2]
 		  << std::endl;
 	}
 
@@ -139,9 +144,9 @@ void HexPlanet::repairNormals()
 	for (std::vector<HexTri>::iterator i = m_hexdual.begin(); i != m_hexdual.end(); ++i)
 	{
 		// pull three verts of triangle
-		const Imath::V3f p0 = m_hexes[i->m_hexA].m_nrm;
-		const Imath::V3f p1 = m_hexes[i->m_hexB].m_nrm;
-		const Imath::V3f p2 = m_hexes[i->m_hexC].m_nrm;
+		const Imath::V3f p0 = m_hexes[i->m_hexA].normal();
+		const Imath::V3f p1 = m_hexes[i->m_hexB].normal();
+		const Imath::V3f p2 = m_hexes[i->m_hexC].normal();
 		const Imath::V3f n = (p2 - p0).cross(p1 - p0);
 		const float d = n.dot(p0);
 		if ((d >= 0 && d < 0.001) || (d < 0 && d > -0.001))
@@ -505,9 +510,9 @@ void HexPlanet::draw( int draw_mode )
 		pB = m_hexes[ (*hi).m_hexB ].m_vertPos;
 		pC = m_hexes[ (*hi).m_hexC ].m_vertPos;	
 
-		nA = m_hexes[ (*hi).m_hexA ].m_nrm;
-		nB = m_hexes[ (*hi).m_hexB ].m_nrm;
-		nC = m_hexes[ (*hi).m_hexC ].m_nrm;	
+		nA = m_hexes[ (*hi).m_hexA ].normal();
+		nB = m_hexes[ (*hi).m_hexB ].normal();
+		nC = m_hexes[ (*hi).m_hexC ].normal();	
 
 		if (draw_mode == DrawMode_CONSTRUCTION)
 		{
