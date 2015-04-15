@@ -505,28 +505,20 @@ void HexPlanet::draw( int draw_mode )
 		 hi != m_hexdual.end(); hi++ )
 	{
 		Imath::V3f pA, pB, pC;
-		Imath::V3f nA, nB, nC;
 		pA = m_hexes[ (*hi).m_hexA ].m_vertPos;
 		pB = m_hexes[ (*hi).m_hexB ].m_vertPos;
 		pC = m_hexes[ (*hi).m_hexC ].m_vertPos;	
-
-		nA = m_hexes[ (*hi).m_hexA ].normal();
-		nB = m_hexes[ (*hi).m_hexB ].normal();
-		nC = m_hexes[ (*hi).m_hexC ].normal();	
 
 		if (draw_mode == DrawMode_CONSTRUCTION)
 		{
 			// Template draw mode
 			glTexCoord2f( 0.5f, 0.94999 );
-			glNormal3f( nA.x, nA.y, nA.z );
 			glVertex3f( pA.x, pA.y, pA.z );
 
 			glTexCoord2f( 0.8897, 0.275 );
-			glNormal3f( nB.x, nB.y, nB.z );
 			glVertex3f( pB.x, pB.y, pB.z );
 
 			glTexCoord2f( 0.1103f, 0.275 );
-			glNormal3f( nC.x, nC.y, nC.z );
 			glVertex3f( pC.x, pC.y, pC.z );		
 		} 
 		else // terrain or terrain_Grid
@@ -561,18 +553,12 @@ void HexPlanet::draw( int draw_mode )
 			txC.y = (txC.y * sz) + (tile_y*sz);
 
 			glTexCoord2f( txA.x, txA.y );
-			//glColor3f( 1.0f, 0.0f, 0.0f );
-			glNormal3f( nA.x, nA.y, nA.z );
 			glVertex3f( pA.x, pA.y, pA.z );
 
 			glTexCoord2f( txB.x, txB.y  );
-			//glColor3f( 0.0f, 1.0f, 0.0f );
-			glNormal3f( nB.x, nB.y, nB.z );
 			glVertex3f( pB.x, pB.y, pB.z );
 
 			glTexCoord2f( txC.x, txC.y  );
-			//glColor3f( 0.0f, 0.0f, 1.0f );
-			glNormal3f( nC.x, nC.y, nC.z );
 			glVertex3f( pC.x, pC.y, pC.z );		
 		}
 	}
