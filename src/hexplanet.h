@@ -75,6 +75,7 @@ struct HexTri
 class HexPlanet
 {
 public:
+	HexPlanet();
 	HexPlanet( int subd_level, float trandom, float twatery );
 
 	enum {

@@ -65,6 +65,10 @@ Imath::V3f HexTri::getCenter( const std::vector<HexTile> &hexes )
 	return pntCenter;
 }
 
+HexPlanet::HexPlanet() :
+	m_subdLevel( 0 )
+{
+}
 
 HexPlanet::HexPlanet( int subd_level, float trandom, float twatery  ) :
 	m_subdLevel( 0 )

@@ -23,6 +23,7 @@
 #include "load_texture.h"
 #include "gamefontgl.h"
 #include "planet_gui.h"
+#include <fstream>
 
 float PlanetGui::_ident[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
 PlanetGui *PlanetGui::s_theGUI = NULL;
@@ -71,7 +72,11 @@ PlanetGui::PlanetGui( int gluiMainWin ) :
 	
 
 	// Construct the planet
-	m_planet  = new HexPlanet( m_subdLevel, m_terrRandom, m_terrWatery );
+	std::ifstream is("test/sphere6.fixed.obj");
+	//m_planet  = new HexPlanet( m_subdLevel, m_terrRandom, m_terrWatery );
+	m_planet  = new HexPlanet();
+	m_planet->read(is);
+	m_planet->projectToSphere();
 
 	// Initialize OpenGL Resources
 	m_planetDlist = glGenLists( 1 );
