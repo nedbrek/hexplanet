@@ -37,9 +37,6 @@ struct HexTile
 	};
 
 	int m_terrain;
-	
-	// Triangle that share this hex
-	std::vector<HexTri*> m_hextri;	
 };
 
 // A hextri is an element of the dual
@@ -97,7 +94,7 @@ public:
 
 	// returns the polygon representation of this
 	// hex. Usually 6-sided but could be a pentagon	
-	void getPolygon( HexTile &tile, std::vector<Imath::V3f> &poly, float offset=0.0f );
+	void getPolygon( size_t tileIndex, std::vector<Imath::V3f> &poly, float offset=0.0f );
 
 	// returns the indices of the neighbors of this tile
 	// Usually 6, could be 5. These aren't in any order

@@ -356,7 +356,7 @@ void PlanetGui::redraw()
 		std::vector<Imath::V3f> cursorPoly;
 		if (m_cursorHex < m_planet->m_hexes.size() )
 		{
-			m_planet->getPolygon( m_planet->m_hexes[m_cursorHex], cursorPoly );
+			m_planet->getPolygon( m_cursorHex, cursorPoly );
 
 			glColor3f( 0.0f, 1.0f, 1.0f );
 			glLineWidth( 3.0 );

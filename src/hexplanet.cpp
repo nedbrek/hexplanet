@@ -19,6 +19,7 @@
 
 #include "load_texture.h"
 #include "hexplanet.h"
+#include <set>
 
 bool HexPlanet::m_initStaticRes = false;
 GLuint HexPlanet::g_texTemplate;
@@ -353,13 +354,6 @@ bool _cmpAngle( HexTri *a, HexTri *b )
 
 void HexPlanet::findNeighbors()
 {
-	// Clear the hextri list on the hexes
-	for (std::vector<HexTile>::iterator hi = m_hexes.begin();
-		hi != m_hexes.end(); hi++ )
-	{
-		(*hi).m_hextri.erase( (*hi).m_hextri.begin(), (*hi).m_hextri.end() );
-	}
-
 	// Find edge adjacentcy -- slow and brute force. Should
 	// do this as part of the subdivide step if this were a
 	// non-prototype implementation.
@@ -395,43 +389,7 @@ void HexPlanet::findNeighbors()
 				(*ti).m_nbCA = &(*tj);
 			}
 		}
-
-
-		// Also as part of findNeighbors, set up the hextri pointers
-		m_hexes[(*ti).m_hexA].m_hextri.push_back( &(*ti) );
-		m_hexes[(*ti).m_hexB].m_hextri.push_back( &(*ti) );
-		m_hexes[(*ti).m_hexC].m_hextri.push_back( &(*ti) );
 	}
-
-	// Now sort the hextri list on the hexes by the angle
-	// around the hex center
-	for (std::vector<HexTile>::iterator hi = m_hexes.begin();
-		hi != m_hexes.end(); hi++ )
-	{
-		// assign angles 
-		for (std::vector<HexTri*>::iterator ti = (*hi).m_hextri.begin();
-			  ti != (*hi).m_hextri.end(); ti++ )
-		{
-			// arbitrarily use the first one as starting angle
-			// it doesn't matter		
-			Imath::V3f v1 = (*hi).m_hextri.back()->getCenter( m_hexes ) - (*hi).m_vertPos;			
-			Imath::V3f nrm = (*ti)->getCenter( m_hexes );
-			Imath::V3f v2 = nrm - (*hi).m_vertPos;			
-			nrm = nrm.normalize();
-			v1 = v1.normalize();
-			v2 = v2.normalize();
-
-			float ang = acos( v1.dot( v2 ) );
-			float dir = nrm.dot( v1.cross( v2 ) );
-			if (dir < 0.0f) ang = M_PI + (M_PI - ang);
-
-			(*ti)->m_tmp.m_angle = ang;
-		}
-
-		// Sort them
-		std::sort( (*hi).m_hextri.begin(), (*hi).m_hextri.end(), _cmpAngle );
-	}
-	
 }
 
 //=============================
@@ -636,16 +594,42 @@ size_t HexPlanet::getHexIndexFromPoint( Imath::V3f surfPos )
 
 // returns the polygon representation of this
 // hex. Usually 6-sided but could be a pentagon	
-void HexPlanet::getPolygon( HexTile &tile, std::vector<Imath::V3f> &poly, float offset )
+void HexPlanet::getPolygon( size_t tileIndex, std::vector<Imath::V3f> &poly, float offset )
 {
 	// clear list
 	poly.erase( poly.begin(), poly.end() );
 
-	// construct polygon
-	for ( std::vector<HexTri*>::iterator ti = tile.m_hextri.begin();
-		  ti != tile.m_hextri.end(); ti++ )
+	// get neighboring hexes
+	std::vector<size_t> neighbors;
+	getNeighbors(tileIndex, neighbors);
+
+	// sort edges to make a good polygon
+	// ---first assign angles around center
+	std::vector<HexTri*> triangles;
+	const Imath::V3f firstPos = m_hexdual[neighbors[0]].getCenter(m_hexes);
+
+	for ( std::vector<size_t>::const_iterator i = neighbors.begin(); i != neighbors.end(); ++i )
 	{
-		Imath::V3f p = (*ti)->getCenter( m_hexes );
+		triangles.push_back(&m_hexdual[*i]);
+		Imath::V3f v1 = firstPos - m_hexes[tileIndex].m_vertPos;
+		Imath::V3f nrm = m_hexdual[*i].getCenter(m_hexes);
+		Imath::V3f v2 = nrm - m_hexes[tileIndex].m_vertPos;
+		nrm.normalize();
+		v1.normalize();
+		v2.normalize();
+
+		float ang = acos( v1.dot( v2 ) );
+		const float dir = nrm.dot( v1.cross( v2 ) );
+		if (dir < 0.0f) ang = M_PI + (M_PI - ang);
+
+		m_hexdual[*i].m_tmp.m_angle = ang;
+	}
+	std::sort( triangles.begin(), triangles.end(), _cmpAngle );
+
+	// construct polygon
+	for ( std::vector<HexTri*>::iterator ti = triangles.begin(); ti != triangles.end(); ++ti )
+	{
+		Imath::V3f p = (**ti).getCenter( m_hexes );
 		p.normalize();
 		p *= kPlanetRadius + offset;
 		poly.push_back( p );
@@ -659,35 +643,20 @@ void HexPlanet::getNeighbors( size_t tileNdx, std::vector<size_t> &nbrs )
 	// clear list
 	nbrs.erase( nbrs.begin(), nbrs.end() );
 
+	std::set<size_t> candidates;
+
 	// find neighbors
-	for ( std::vector<HexTri*>::iterator ti = m_hexes[tileNdx].m_hextri.begin();
-		  ti != m_hexes[tileNdx].m_hextri.end(); ti++ )
+	for ( size_t ti = 0; ti != m_hexdual.size(); ++ti)
 	{
-		// Check all all the hexes on neiboring 
-		// hextries (except ourself), checking for dups
-
-		// HEX A
-		if ( ( ((*ti)->m_hexA) != tileNdx ) &&
-			 (find( nbrs.begin(), nbrs.end(), ((*ti)->m_hexA) ) == nbrs.end() ) )
+		if (m_hexdual[ti].m_hexA == tileNdx ||
+			 m_hexdual[ti].m_hexB == tileNdx ||
+			 m_hexdual[ti].m_hexC == tileNdx)
 		{
-			nbrs.push_back( ((*ti)->m_hexA) );
-		}
-
-		// HEX B
-		if ( ( ((*ti)->m_hexB) != tileNdx ) &&
-			 (find( nbrs.begin(), nbrs.end(), ((*ti)->m_hexB) ) == nbrs.end() ) )
-		{
-			nbrs.push_back( ((*ti)->m_hexB) );
-		}
-		
-		// HEX C
-		if ( ( ((*ti)->m_hexC) != tileNdx ) &&
-			 (find( nbrs.begin(), nbrs.end(), ((*ti)->m_hexC) ) == nbrs.end() ) )
-			 
-		{
-			nbrs.push_back( ((*ti)->m_hexC) );
+			candidates.insert(ti);
 		}
 	}
+
+	nbrs.insert(nbrs.end(), candidates.begin(), candidates.end());
 }
 
 // Returns a point on the planet's surface given a ray
