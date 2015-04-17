@@ -1,5 +1,5 @@
 CXX ?= g++
-CXXFLAGS += -MP -MMD -Wall -g
+CXXFLAGS += -MP -MMD -Wall -g -O3
 LDFLAGS += -Wall
 LIBS = -lGL -lGLEW
 

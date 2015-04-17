@@ -1,6 +1,6 @@
 CXX ?= g++
 CC ?= gcc
-CXXFLAGS += -MP -MMD -Wall -g
+CXXFLAGS += -MP -MMD -Wall -g -O3
 CFLAGS += -MP -MMD -Wall -g
 LDFLAGS += -Wall -lGLEW -lglui -lGL
 
