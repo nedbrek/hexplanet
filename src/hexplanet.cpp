@@ -152,7 +152,8 @@ void HexPlanet::repairNormals()
 		const Imath::V3f p0 = m_hexes[i->m_hexA].normal();
 		const Imath::V3f p1 = m_hexes[i->m_hexB].normal();
 		const Imath::V3f p2 = m_hexes[i->m_hexC].normal();
-		const Imath::V3f n = (p2 - p0).cross(p1 - p0);
+		Imath::V3f n = (p2 - p0).cross(p1 - p0);
+		n.normalize();
 		const float d = n.dot(p0);
 		if ((d >= 0 && d < 0.001) || (d < 0 && d > -0.001))
 			std::cerr << "Triangle intersects origin" << std::endl;
