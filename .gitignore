@@ -4,4 +4,6 @@
 /test/*.d
 /hex_planet.exe
 /test/loadTest.exe
+/test/writeData.exe
 *.obj
+/test/*.bin

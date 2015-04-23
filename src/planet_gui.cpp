@@ -23,6 +23,7 @@
 #include "load_texture.h"
 #include "gamefontgl.h"
 #include "planet_gui.h"
+#include "map_data.h"
 #include <fstream>
 
 float PlanetGui::_ident[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
@@ -42,9 +43,10 @@ PlanetGui::PlanetGui( int gluiMainWin ) :
 	m_showStats( 1 ),
 	m_subdLevel ( 3 ),
 	m_drawMode( HexPlanet::DrawMode_TERRAIN ),
-	m_paintTile( HexTile::Terrain_DESERT ),
+	m_paintTile( Terrain_DESERT ),
 	m_terrRandom( 0.17f ),
 	m_terrWatery( 0.5f ),
+	m_tileData(new MapData<uint8_t>),
 	m_altitude(-2500.f)
 {
 	// singleton
@@ -78,13 +80,16 @@ PlanetGui::PlanetGui( int gluiMainWin ) :
 	m_planet->read(is);
 	m_planet->projectToSphere();
 
+	FILE *terrainFile = fopen("test/terrain6.bin", "rb");
+	m_tileData->read(terrainFile);
+
 	// Initialize OpenGL Resources
 	m_planetDlist = glGenLists( 1 );
 
 	// load star textures
 	m_texStars = loadTextureDDS( "datafiles/stars.dds" );		
-	
 }
+
 //=============================
 // buildInterface
 //=============================
@@ -127,11 +132,11 @@ void PlanetGui::buildInterface()
 	// Paint
 	GLUI_Listbox *list = m_glui->add_listbox_to_panel( construct_pane, 
 													"Draw:", &m_paintTile );  
-    list->add_item( HexTile::Terrain_WATER, "Water" );
-	list->add_item( HexTile::Terrain_DESERT, "Desert" );
-	list->add_item( HexTile::Terrain_GRASSLAND, "Grassland" );
-	list->add_item( HexTile::Terrain_FOREST, "Forest" );
-	list->add_item( HexTile::Terrain_MOUNTAIN, "Mountains" );
+    list->add_item( Terrain_WATER, "Water" );
+	list->add_item( Terrain_DESERT, "Desert" );
+	list->add_item( Terrain_GRASSLAND, "Grassland" );
+	list->add_item( Terrain_FOREST, "Forest" );
+	list->add_item( Terrain_MOUNTAIN, "Mountains" );
 
 
 	// add button
@@ -312,7 +317,7 @@ void PlanetGui::redraw()
 	if (m_planetDirty)
 	{		
 		glNewList( m_planetDlist, GL_COMPILE_AND_EXECUTE );
-		m_planet->draw( m_drawMode );	
+		m_planet->draw( m_drawMode, *m_tileData );	
 		glEndList();
 
 		m_planetDirty = false;
@@ -434,7 +439,7 @@ void PlanetGui::redraw()
 			glPushMatrix();	
 			glTranslated( 20, pixelRow, 0 );
 			gfDrawStringFmt( "Curr Terrain: %d\n", 
-				m_planet->m_hexes[ m_cursorHex ].m_terrain );
+					(*m_tileData)[ m_cursorHex ] );
 			glPopMatrix();	
 			pixelRow -= ROW_SIZE;
 
@@ -608,7 +613,7 @@ void PlanetGui::paintTile()
 	updateCursorPos();
 	if (m_mouseOnSurface)
 	{
-		m_planet->m_hexes[ m_cursorHex ].m_terrain = m_paintTile;
+		(*m_tileData)[ m_cursorHex ] = m_paintTile;
 	}
 
 	// mark the planet as needing redraw

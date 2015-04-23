@@ -12,7 +12,17 @@
 #endif
 #include <GL/glu.h>
 
-struct HexTri;
+template<typename T> class MapData;
+
+// Terrain Type
+enum Terrain
+{
+	Terrain_WATER,
+	Terrain_DESERT,
+	Terrain_GRASSLAND,
+	Terrain_FOREST,
+	Terrain_MOUNTAIN
+};
 
 // A Hextile is a single hex (or sometimes pentagon)
 // in the hex tiled planet. It is a single vertex of
@@ -26,17 +36,6 @@ struct HexTile
 	// the position of the vert in the tile,
 	// and the center of the hex in space
 	Imath::V3f m_vertPos;		
-
-	// Terrain Type
-	enum {
-		Terrain_WATER,
-		Terrain_DESERT,
-		Terrain_GRASSLAND,
-		Terrain_FOREST,
-		Terrain_MOUNTAIN
-	};
-
-	int m_terrain;
 };
 
 // A hextri is an element of the dual
@@ -86,7 +85,7 @@ public:
 
 	void repairNormals();
 
-	void draw( int draw_mode );
+	void draw( int draw_mode, const MapData<uint8_t> &terrainData );
 
 	size_t getNumHexes();
 
@@ -115,7 +114,6 @@ public:
 	void buildLevel0( float twatery );	
 	void projectToSphere();
 	void findNeighbors();
-	int getRandomTerrain( float twatery );
 
 	// data
 	std::vector<HexTile> m_hexes;

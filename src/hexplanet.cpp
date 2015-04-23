@@ -19,6 +19,7 @@
 
 #include "load_texture.h"
 #include "hexplanet.h"
+#include "map_data.h"
 #include <set>
 
 bool HexPlanet::m_initStaticRes = false;
@@ -31,7 +32,6 @@ float HexPlanet::kPlanetRadius = 1000.0f;
 HexTile::HexTile( Imath::V3f p ) :
 	m_vertPos( p )
 {
-	m_terrain = HexTile::Terrain_DESERT;
 }
 
 Imath::V3f HexTile::normal() const
@@ -192,13 +192,6 @@ void HexPlanet::buildLevel0( float twatery )
 	m_hexes.push_back( HexTile( Imath::V3f( -1.17082f, 0.723606f, 0.0f )));
 	m_hexes.push_back( HexTile( Imath::V3f( -1.17082f, -0.723606f,  0.0f )));
 
-	// set initial terrain types
-	for (std::vector<HexTile>::iterator hi = m_hexes.begin();
-		hi != m_hexes.end(); hi++)
-	{
-		(*hi).m_terrain = getRandomTerrain( twatery );
-	}
-
 	m_hexdual.push_back( HexTri( 5, 11, 6 ));
 	m_hexdual.push_back( HexTri( 1, 2, 0 ));
 	m_hexdual.push_back( HexTri( 0, 2, 3 ));
@@ -272,31 +265,6 @@ void HexPlanet::subdivide( float trandom, float twatery )
 
 		// add it to the list of hexes
 		m_hexes.push_back( HexTile( pNewVert ) );
-
-
-		// if we're below the random threshold
-		// inherit the terrain from an arbitrary parent		
-		if  ( ((float)rand() / (float)RAND_MAX) > trandom )
-		{
-			int tr = rand() % 3;
-			switch (tr)
-			{
-			case 0:
-				m_hexes.back().m_terrain = m_hexes[ (*ti).m_hexA ].m_terrain;
-				break;
-			case 1:
-				m_hexes.back().m_terrain = m_hexes[ (*ti).m_hexB ].m_terrain;
-				break;
-			case 2:
-				m_hexes.back().m_terrain = m_hexes[ (*ti).m_hexC ].m_terrain;
-				break;
-			}
-		}
-		else
-		{
-			// Go with a random tile
-			m_hexes.back().m_terrain = getRandomTerrain( twatery );
-		}
 	}
 
 	// Go through each triangle in the old mesh and create
@@ -411,7 +379,7 @@ void HexPlanet::projectToSphere()
 //=============================
 // draw()
 //=============================
-void HexPlanet::draw( int draw_mode )
+void HexPlanet::draw( int draw_mode, const MapData<uint8_t> &terrainData )
 {
 	// Initialize static resources
 	if (!m_initStaticRes)
@@ -494,9 +462,9 @@ void HexPlanet::draw( int draw_mode )
 
 			// offset texture coords to fit tile
 			int ndxA , ndxB, ndxC;
-			ndxA = m_hexes[ (*hi).m_hexA ].m_terrain;
-			ndxB = m_hexes[ (*hi).m_hexC ].m_terrain;
-			ndxC = m_hexes[ (*hi).m_hexB ].m_terrain;
+			ndxA = terrainData[ (*hi).m_hexA ];
+			ndxB = terrainData[ (*hi).m_hexC ];
+			ndxC = terrainData[ (*hi).m_hexB ];
 
 			// TODO: Could use GL texture transform here
 			int ndx = (ndxA*25)+(ndxB*5)+ndxC;
@@ -553,18 +521,6 @@ void HexPlanet::draw( int draw_mode )
 size_t HexPlanet::getNumHexes()
 {
 	return m_hexes.size();
-}
-
-int HexPlanet::getRandomTerrain( float twatery )
-{
-	if ( ((float)rand() / (float)RAND_MAX) > twatery)
-	{
-		// return a land hex
-		int t = (((float)rand() / (float)RAND_MAX) * 4) + 1;
-		if (t > HexTile::Terrain_MOUNTAIN) t = HexTile::Terrain_MOUNTAIN;
-		return t;
-	} 
-	else return HexTile::Terrain_WATER;
 }
 
 size_t HexPlanet::getHexIndexFromPoint( Imath::V3f surfPos )
