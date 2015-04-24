@@ -47,10 +47,6 @@ struct HexTri
 	// indices into the hex list
 	size_t m_hexA, m_hexB, m_hexC;
 	
-	// Connectivity, links to neighbors
-	// i.e. nbCA = neighbor across edge A<->C
-	HexTri *m_nbAB, *m_nbBC, *m_nbCA;
-
 	// Returns the center of the tri
 	Imath::V3f getCenter( const std::vector<HexTile> &hexes  );
 
@@ -63,7 +59,6 @@ struct HexTri
 		float m_angle;
 	} m_tmp;
 	
-
 	// Dbg color
 	//Imath::C4f m_dbgColor;
 };
@@ -113,7 +108,6 @@ public:
 	// construction operations
 	void buildLevel0( float twatery );	
 	void projectToSphere();
-	void findNeighbors();
 
 	// data
 	std::vector<HexTile> m_hexes;

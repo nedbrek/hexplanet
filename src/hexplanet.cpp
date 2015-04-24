@@ -20,6 +20,7 @@
 #include "load_texture.h"
 #include "hexplanet.h"
 #include "map_data.h"
+#include <map>
 #include <set>
 
 bool HexPlanet::m_initStaticRes = false;
@@ -42,10 +43,6 @@ Imath::V3f HexTile::normal() const
 HexTri::HexTri( size_t a, size_t b, size_t c) :
 	m_hexA( a ), m_hexB( b ), m_hexC( c )
 {
-	m_nbAB = NULL;
-	m_nbBC = NULL;
-	m_nbCA = NULL;
-
 	// Mark newvert as uninitialized
 	m_tmp.m_newvert = std::string::npos;
 
@@ -215,46 +212,49 @@ void HexPlanet::buildLevel0( float twatery )
 
 	// make planet sized
 	// projectToSphere();
-
-	// assign neighbors
-	findNeighbors();
 }
 
-// Used in subdivide
-void createTrisFromEdge( std::vector< std::pair< size_t, size_t > > &edgeDone,
-							 std::vector<HexTri> &trilist,
-							 HexTri &tri, HexTri &otherTri,
-							 size_t eA, size_t eB )
+typedef std::map<std::pair<size_t, size_t>, std::pair<size_t, size_t> > AdjacencyMap;
+void updateAdjacencyInfo(const std::pair<size_t,size_t> &edge, size_t triangleIndex, AdjacencyMap &am)
 {
-	std::pair<size_t, size_t> eid( std::min( eA, eB ), std::max( eA, eB ) );
-	if (std::find( edgeDone.begin(), edgeDone.end(), eid ) == edgeDone.end() )
+	AdjacencyMap::iterator i = am.find(edge);
+	if (i == am.end())
 	{
-		trilist.push_back( HexTri( eA, tri.m_tmp.m_newvert, otherTri.m_tmp.m_newvert ) );					
-		trilist.push_back( HexTri( tri.m_tmp.m_newvert, otherTri.m_tmp.m_newvert, eB ) );
-		edgeDone.push_back( eid );
+		am[edge] = std::make_pair(triangleIndex, -1);
+	}
+	else
+	{
+		// i->second is the value in the map (a pair of triangle indexes)
+		// the first index was set in create (above)
+		if (i->second.second != size_t(-1))
+			std::cerr << "Error in updateAdjacencyInfo!" << std::endl;
+		i->second.second = triangleIndex;
 	}
 }
 
 //=============================
-// subdivide()
-// Perform sqrt(3) subdivision on
-// the mesh
+// Perform sqrt(3) subdivision on the mesh
 //=============================
 void HexPlanet::subdivide( float trandom, float twatery )
 {
+	// create two triangles in the new mesh for every edge in the src mesh
 
+	// generate adjacency info
+	AdjacencyMap adjacencyInfo;
+	for (size_t ti = 0; ti != m_hexdual.size(); ++ti)
+	{
+		const HexTri &t = m_hexdual[ti];
+		std::pair<size_t, size_t> eidAB( std::min( t.m_hexA, t.m_hexB ), std::max( t.m_hexA, t.m_hexB ) );
+		updateAdjacencyInfo(eidAB, ti, adjacencyInfo);
 
-	// Subdivide by creating two triangles in 
-	// the next level mesh for every edge in the
-	// src mesh. Keep track of which edges have
-	// already been handled
-	std::vector< std::pair< size_t, size_t > > edgeDone;
+		std::pair<size_t, size_t> eidBC( std::min( t.m_hexB, t.m_hexC ), std::max( t.m_hexB, t.m_hexC ) );
+		updateAdjacencyInfo(eidBC, ti, adjacencyInfo);
 
-	// The new mesh that will be created	
-	std::vector<HexTri> newHexdual;
+		std::pair<size_t, size_t> eidCA( std::min( t.m_hexC, t.m_hexA ), std::max( t.m_hexC, t.m_hexA ) );
+		updateAdjacencyInfo(eidCA, ti, adjacencyInfo);
+	}
 
-	// Go through each triangle in the old mesh and create
-	// a new vert at the center of each one
+	// foreach triangle in the old mesh, create a new vert at the center
 	for (std::vector<HexTri>::iterator ti = m_hexdual.begin();
 		 ti != m_hexdual.end(); ti++ )
 	{
@@ -267,29 +267,34 @@ void HexPlanet::subdivide( float trandom, float twatery )
 		m_hexes.push_back( HexTile( pNewVert ) );
 	}
 
-	// Go through each triangle in the old mesh and create
-	// a new pair of triangles for each edge
-	for (std::vector<HexTri>::iterator ti = m_hexdual.begin();
-		 ti != m_hexdual.end(); ti++ )
+	// The new mesh that will be created
+	std::vector<HexTri> newHexdual;
+
+	// foreach edge, create two triangles
+	for (AdjacencyMap::const_iterator ei = adjacencyInfo.begin(); ei != adjacencyInfo.end(); ++ei)
 	{
-		HexTri &t = (*ti);
+		// given edge A,B - with neighbor across edge
+		// first triangle is: A, center, neighbor's center
+		// second triangle is: center, neighbor's center, B 
+		if (ei->second.first == size_t(-1) ||
+			 ei->second.second == size_t(-1))
+		{
+			std::cerr << "Error in adjacency info" << std::endl;
+			continue;
+		}
 
-		// Create a pair for edge AB
-		createTrisFromEdge( edgeDone, newHexdual, t, *(t.m_nbAB), t.m_hexA, t.m_hexB );
+		const size_t a = ei->first.first;
+		const size_t b = ei->first.second;
 
-		// Create a pair for edge BC
-		createTrisFromEdge( edgeDone, newHexdual, t, *(t.m_nbBC), t.m_hexB, t.m_hexC );
-		
-		// Create a pair for edge CA
-		createTrisFromEdge( edgeDone, newHexdual, t, *(t.m_nbCA), t.m_hexC, t.m_hexA );
-		
+		HexTri *t = &m_hexdual[ei->second.first];
+		HexTri *ot = &m_hexdual[ei->second.second];
+
+		newHexdual.push_back( HexTri(a, t->m_tmp.m_newvert, ot->m_tmp.m_newvert) );
+		newHexdual.push_back( HexTri(t->m_tmp.m_newvert, ot->m_tmp.m_newvert, b) );
 	}
 
 	// replace the current set of hexes with the dual
 	m_hexdual = newHexdual;
-
-	// find new neighbors
-	findNeighbors();
 
 	// reproject back to sphere
 	projectToSphere();
@@ -298,68 +303,6 @@ void HexPlanet::subdivide( float trandom, float twatery )
 	m_subdLevel++;
 }
 
-
-//=============================
-// findNeighbors() -- it would be more
-// efficent to just keep track of the neighbors
-// during subdivision, but this is easier
-//=============================
-bool edgeMatch( size_t a, size_t b,
-				size_t otherA, size_t otherB, size_t otherC )
-{
-	if ( ((a==otherA) && (b==otherB)) ||
-		 ((a==otherB) && (b==otherC)) ||
-		 ((a==otherC) && (b==otherA)) ||
-		 ((b==otherA) && (a==otherB)) ||
-		 ((b==otherB) && (a==otherC)) ||
-		 ((b==otherC) && (a==otherA)) ) return true;
-	return false;
-}
-
-bool _cmpAngle( HexTri *a, HexTri *b )
-{
-	return a->m_tmp.m_angle < b->m_tmp.m_angle;
-}
-
-void HexPlanet::findNeighbors()
-{
-	// Find edge adjacentcy -- slow and brute force. Should
-	// do this as part of the subdivide step if this were a
-	// non-prototype implementation.
-	for (std::vector<HexTri>::iterator ti = m_hexdual.begin();
-		ti != m_hexdual.end(); ti++)
-	{
-		// find the neighbors for ti
-		for (std::vector<HexTri>::iterator tj = m_hexdual.begin();
-			tj != m_hexdual.end(); tj++)
-		{
-
-			// Don't match ourselves
-			if (ti==tj) continue;
-
-			// Neighbor across edge AB
-			if ( edgeMatch( (*ti).m_hexA, (*ti).m_hexB,
-							(*tj).m_hexA, (*tj).m_hexB, (*tj).m_hexC ) )
-			{
-				(*ti).m_nbAB = &(*tj);
-			}
-
-			// Neighbor across edge BC
-			if ( edgeMatch( (*ti).m_hexB, (*ti).m_hexC,
-							(*tj).m_hexA, (*tj).m_hexB, (*tj).m_hexC ) )
-			{
-				(*ti).m_nbBC = &(*tj);
-			}
-
-			// Neighbor across edge CA
-			if ( edgeMatch( (*ti).m_hexC, (*ti).m_hexA,
-							(*tj).m_hexA, (*tj).m_hexB, (*tj).m_hexC ) )
-			{
-				(*ti).m_nbCA = &(*tj);
-			}
-		}
-	}
-}
 
 //=============================
 // projectToSphere()
@@ -547,6 +490,12 @@ size_t HexPlanet::getHexIndexFromPoint( Imath::V3f surfPos )
 	}
 
 	return best_hex;
+}
+
+//=============================
+bool _cmpAngle( HexTri *a, HexTri *b )
+{
+	return a->m_tmp.m_angle < b->m_tmp.m_angle;
 }
 
 // returns the polygon representation of this
