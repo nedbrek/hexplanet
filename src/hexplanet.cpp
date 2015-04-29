@@ -87,6 +87,11 @@ HexPlanet::HexPlanet( int subd_level, float trandom, float twatery  ) :
 	}
 }
 
+float roundEpsilon(float a)
+{
+	return (fabs(a) < 1e-7) ? 0 : a;
+}
+
 void HexPlanet::write( std::ostream &o )
 {
 	o << "# " << m_hexes.size() << " Vertices" << std::endl;
@@ -94,9 +99,9 @@ void HexPlanet::write( std::ostream &o )
 	{
 		  const Imath::V3f nrm = i->normal();
 		  o << 'v'
-		  << ' ' << nrm[0]
-		  << ' ' << nrm[1]
-		  << ' ' << nrm[2]
+		  << ' ' << roundEpsilon(nrm[0])
+		  << ' ' << roundEpsilon(nrm[1])
+		  << ' ' << roundEpsilon(nrm[2])
 		  << std::endl;
 	}
 

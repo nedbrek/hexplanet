@@ -19,7 +19,7 @@ DEP := $(OBJ:.o=.d)
 .PHONY: all
 all: loadTest.exe writeData.exe
 
-LAST := 6
+LAST := 8
 NUMBERS := $(shell seq 1 $(LAST))
 TESTS := $(addprefix test, $(NUMBERS))
 

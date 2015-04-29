@@ -73,19 +73,12 @@ proc diffObj {f1 f2} {
 		# translate index for o2
 		set p0 [lindex $verts1 $v0]
 		set pt0 [translateVert o2v $p0]
-		if {$pt0 eq ""} {
-			return -1
-		}
-
 		set p1 [lindex $verts1 $v1]
 		set pt1 [translateVert o2v $p1]
-		if {$pt1 eq ""} {
-			return -1
-		}
-
 		set p2 [lindex $verts1 $v2]
 		set pt2 [translateVert o2v $p2]
-		if {$pt2 eq ""} {
+
+		if {$pt0 eq "" || $pt1 eq "" || $pt2 eq ""} {
 			return -1
 		}
 
