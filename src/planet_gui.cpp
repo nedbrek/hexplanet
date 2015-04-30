@@ -355,7 +355,7 @@ void PlanetGui::redraw()
 	}
 
 	// draw the "cursor" hex
-	std::vector<size_t> nb;	
+	std::vector<uint32_t> nb;	
 	if (m_mouseOnSurface)
 	{
 		std::vector<Imath::V3f> cursorPoly;

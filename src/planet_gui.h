@@ -62,7 +62,7 @@ protected:
 	};
 
 	// Index of the hex the cursor is over
-	size_t m_cursorHex;
+	uint32_t m_cursorHex;
 
 	// location of the mouse cursor on the planet's surface
 	// (last know location if mouse is not touching planet)

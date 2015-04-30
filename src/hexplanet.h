@@ -42,10 +42,10 @@ struct HexTile
 // of the (mostly) hex tiling
 struct HexTri
 {
-	HexTri( size_t a, size_t b, size_t c );
+	HexTri( uint32_t a, uint32_t b, uint32_t c );
 
 	// indices into the hex list
-	size_t m_hexA, m_hexB, m_hexC;
+	uint32_t m_hexA, m_hexB, m_hexC;
 	
 	// Returns the center of the tri
 	Imath::V3f getCenter( const std::vector<HexTile> &hexes  );
@@ -53,7 +53,7 @@ struct HexTri
 	// Temporaries that don't need to stick around	
 	union {
 		// Just used in the construction process
-		size_t m_newvert;
+		uint32_t m_newvert;
 
 		// angle around tile center
 		float m_angle;
@@ -88,11 +88,11 @@ public:
 
 	// returns the polygon representation of this
 	// hex. Usually 6-sided but could be a pentagon	
-	void getPolygon( size_t tileIndex, std::vector<Imath::V3f> &poly, float offset=0.0f );
+	void getPolygon( uint32_t tileIndex, std::vector<Imath::V3f> &poly, float offset=0.0f );
 
 	// returns the indices of the neighbors of this tile
 	// Usually 6, could be 5. These aren't in any order
-	void getNeighbors( size_t tileNdx, std::vector<size_t> &nbrs );
+	void getNeighbors( uint32_t tileNdx, std::vector<uint32_t> &nbrs );
 	
 	// Returns a point on the planet's surface given a ray
 	bool rayHitPlanet( Imath::V3f p, Imath::V3f dir, Imath::V3f &result );

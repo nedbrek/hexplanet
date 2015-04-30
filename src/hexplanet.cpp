@@ -40,11 +40,11 @@ Imath::V3f HexTile::normal() const
 	return m_vertPos.normalized();
 }
 
-HexTri::HexTri( size_t a, size_t b, size_t c) :
+HexTri::HexTri( uint32_t a, uint32_t b, uint32_t c) :
 	m_hexA( a ), m_hexB( b ), m_hexC( c )
 {
 	// Mark newvert as uninitialized
-	m_tmp.m_newvert = std::string::npos;
+	m_tmp.m_newvert = -1;
 
 	// DBG color. For debugging
 	//m_dbgColor.r = (float)rand() / (float)RAND_MAX;
@@ -139,7 +139,7 @@ void HexPlanet::read( std::istream &is )
 		else if (firstChar == 'f')
 		{
 			// face - 3 vert indices
-			size_t x, y, z;
+			uint32_t x, y, z;
 			iss >> x >> y >> z;
 			m_hexdual.push_back(HexTri(x-1, y-1, z-1));
 		}
@@ -162,7 +162,7 @@ void HexPlanet::repairNormals()
 		else if (d > 0)
 		{
 			// reverse points
-			const size_t oldC = i->m_hexC;
+			const uint32_t oldC = i->m_hexC;
 			i->m_hexC = i->m_hexA;
 			i->m_hexA = oldC;
 		}
@@ -219,8 +219,8 @@ void HexPlanet::buildLevel0( float twatery )
 	// projectToSphere();
 }
 
-typedef std::map<std::pair<size_t, size_t>, std::pair<size_t, size_t> > AdjacencyMap;
-void updateAdjacencyInfo(const std::pair<size_t,size_t> &edge, size_t triangleIndex, AdjacencyMap &am)
+typedef std::map<std::pair<uint32_t, uint32_t>, std::pair<uint32_t, uint32_t> > AdjacencyMap;
+void updateAdjacencyInfo(const std::pair<uint32_t,uint32_t> &edge, uint32_t triangleIndex, AdjacencyMap &am)
 {
 	AdjacencyMap::iterator i = am.find(edge);
 	if (i == am.end())
@@ -231,7 +231,7 @@ void updateAdjacencyInfo(const std::pair<size_t,size_t> &edge, size_t triangleIn
 	{
 		// i->second is the value in the map (a pair of triangle indexes)
 		// the first index was set in create (above)
-		if (i->second.second != size_t(-1))
+		if (i->second.second != uint32_t(-1))
 			std::cerr << "Error in updateAdjacencyInfo!" << std::endl;
 		i->second.second = triangleIndex;
 	}
@@ -249,13 +249,13 @@ void HexPlanet::subdivide( float trandom, float twatery )
 	for (size_t ti = 0; ti != m_hexdual.size(); ++ti)
 	{
 		const HexTri &t = m_hexdual[ti];
-		std::pair<size_t, size_t> eidAB( std::min( t.m_hexA, t.m_hexB ), std::max( t.m_hexA, t.m_hexB ) );
+		std::pair<uint32_t, uint32_t> eidAB( std::min( t.m_hexA, t.m_hexB ), std::max( t.m_hexA, t.m_hexB ) );
 		updateAdjacencyInfo(eidAB, ti, adjacencyInfo);
 
-		std::pair<size_t, size_t> eidBC( std::min( t.m_hexB, t.m_hexC ), std::max( t.m_hexB, t.m_hexC ) );
+		std::pair<uint32_t, uint32_t> eidBC( std::min( t.m_hexB, t.m_hexC ), std::max( t.m_hexB, t.m_hexC ) );
 		updateAdjacencyInfo(eidBC, ti, adjacencyInfo);
 
-		std::pair<size_t, size_t> eidCA( std::min( t.m_hexC, t.m_hexA ), std::max( t.m_hexC, t.m_hexA ) );
+		std::pair<uint32_t, uint32_t> eidCA( std::min( t.m_hexC, t.m_hexA ), std::max( t.m_hexC, t.m_hexA ) );
 		updateAdjacencyInfo(eidCA, ti, adjacencyInfo);
 	}
 
@@ -281,15 +281,15 @@ void HexPlanet::subdivide( float trandom, float twatery )
 		// given edge A,B - with neighbor across edge
 		// first triangle is: A, center, neighbor's center
 		// second triangle is: center, neighbor's center, B 
-		if (ei->second.first == size_t(-1) ||
-			 ei->second.second == size_t(-1))
+		if (ei->second.first == uint32_t(-1) ||
+			 ei->second.second == uint32_t(-1))
 		{
 			std::cerr << "Error in adjacency info" << std::endl;
 			continue;
 		}
 
-		const size_t a = ei->first.first;
-		const size_t b = ei->first.second;
+		const uint32_t a = ei->first.first;
+		const uint32_t b = ei->first.second;
 
 		HexTri *t = &m_hexdual[ei->second.first];
 		HexTri *ot = &m_hexdual[ei->second.second];
@@ -473,7 +473,7 @@ size_t HexPlanet::getNumHexes()
 
 size_t HexPlanet::getHexIndexFromPoint( Imath::V3f surfPos )
 {
-	size_t best_hex = 0;
+	uint32_t best_hex = 0;
 	float best_dot;
 
 	// normalize
@@ -505,13 +505,13 @@ bool _cmpAngle( HexTri *a, HexTri *b )
 
 // returns the polygon representation of this
 // hex. Usually 6-sided but could be a pentagon	
-void HexPlanet::getPolygon( size_t tileIndex, std::vector<Imath::V3f> &poly, float offset )
+void HexPlanet::getPolygon( uint32_t tileIndex, std::vector<Imath::V3f> &poly, float offset )
 {
 	// clear list
 	poly.erase( poly.begin(), poly.end() );
 
 	// get neighboring hexes
-	std::vector<size_t> neighbors;
+	std::vector<uint32_t> neighbors;
 	getNeighbors(tileIndex, neighbors);
 
 	// sort edges to make a good polygon
@@ -519,7 +519,7 @@ void HexPlanet::getPolygon( size_t tileIndex, std::vector<Imath::V3f> &poly, flo
 	std::vector<HexTri*> triangles;
 	const Imath::V3f firstPos = m_hexdual[neighbors[0]].getCenter(m_hexes);
 
-	for ( std::vector<size_t>::const_iterator i = neighbors.begin(); i != neighbors.end(); ++i )
+	for ( std::vector<uint32_t>::const_iterator i = neighbors.begin(); i != neighbors.end(); ++i )
 	{
 		triangles.push_back(&m_hexdual[*i]);
 		Imath::V3f v1 = firstPos - m_hexes[tileIndex].m_vertPos;
@@ -549,12 +549,12 @@ void HexPlanet::getPolygon( size_t tileIndex, std::vector<Imath::V3f> &poly, flo
 
 // returns the indices of the neighbors of this tile
 // Usually 6, could be 5
-void HexPlanet::getNeighbors( size_t tileNdx, std::vector<size_t> &nbrs )
+void HexPlanet::getNeighbors( uint32_t tileNdx, std::vector<uint32_t> &nbrs )
 {
 	// clear list
 	nbrs.erase( nbrs.begin(), nbrs.end() );
 
-	std::set<size_t> candidates;
+	std::set<uint32_t> candidates;
 
 	// find neighbors
 	for ( size_t ti = 0; ti != m_hexdual.size(); ++ti)
