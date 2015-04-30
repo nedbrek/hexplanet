@@ -25,3 +25,7 @@ all: $(BIN)
 $(BIN): $(OBJ)
 	@$(CXX) -o $@ $^ $(LDFLAGS)
 
+.PHONY: clean
+clean:
+	@rm -f $(OBJ) $(BIN)
+
