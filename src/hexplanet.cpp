@@ -466,7 +466,7 @@ void HexPlanet::draw( int draw_mode, const MapData<uint8_t> &terrainData )
 #endif
 }
 
-size_t HexPlanet::getNumHexes()
+size_t HexPlanet::getNumHexes() const
 {
 	return m_hexes.size();
 }
@@ -549,7 +549,7 @@ void HexPlanet::getPolygon( uint32_t tileIndex, std::vector<Imath::V3f> &poly, f
 
 // returns the indices of the neighbors of this tile
 // Usually 6, could be 5
-void HexPlanet::getNeighbors( uint32_t tileNdx, std::vector<uint32_t> &nbrs )
+void HexPlanet::getNeighbors( uint32_t tileNdx, std::vector<uint32_t> &nbrs ) const
 {
 	// clear list
 	nbrs.erase( nbrs.begin(), nbrs.end() );

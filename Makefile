@@ -4,7 +4,9 @@ CXXFLAGS += -MP -MMD -Wall -g -O3
 CFLAGS += -MP -MMD -Wall -g
 LDFLAGS += -Wall -lGLEW -lglui -lGL
 
-CXXSRC := src/hexplanet.cpp src/hexp_main.cpp src/load_texture.cpp src/planet_gui.cpp
+CXXSRC := src/hexplanet.cpp src/hexp_main.cpp src/load_texture.cpp \
+src/planet_gui.cpp utils/neighbors.cpp
+
 CSRC := src/gamefontgl.c
 
 BIN := hex_planet.exe

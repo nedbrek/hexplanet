@@ -9,6 +9,7 @@
 #include "hexplanet.h"
 
 template<typename T> class MapData;
+class Neighbors;
 
 // A star billboard in the starfield
 struct Star
@@ -94,6 +95,7 @@ protected:
 	// the planet map
 	HexPlanet *m_planet;
 	MapData<uint8_t> *m_tileData;
+	Neighbors *m_neighbors;
 
 	// Planet Rotation
 	float m_rotPlanet[16];

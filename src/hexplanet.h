@@ -82,7 +82,7 @@ public:
 
 	void draw( int draw_mode, const MapData<uint8_t> &terrainData );
 
-	size_t getNumHexes();
+	size_t getNumHexes() const;
 
 	void subdivide( float trandom, float twatery );
 
@@ -92,7 +92,7 @@ public:
 
 	// returns the indices of the neighbors of this tile
 	// Usually 6, could be 5. These aren't in any order
-	void getNeighbors( uint32_t tileNdx, std::vector<uint32_t> &nbrs );
+	void getNeighbors( uint32_t tileNdx, std::vector<uint32_t> &nbrs ) const;
 	
 	// Returns a point on the planet's surface given a ray
 	bool rayHitPlanet( Imath::V3f p, Imath::V3f dir, Imath::V3f &result );

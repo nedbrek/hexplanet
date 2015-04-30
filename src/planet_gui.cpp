@@ -1,3 +1,5 @@
+#include "planet_gui.h"
+#include "../utils/neighbors.h"
 #include <iostream>
 #include <vector>
 #include <assert.h>
@@ -22,7 +24,6 @@
 
 #include "load_texture.h"
 #include "gamefontgl.h"
-#include "planet_gui.h"
 #include "map_data.h"
 #include <fstream>
 
@@ -82,6 +83,9 @@ PlanetGui::PlanetGui( int gluiMainWin ) :
 
 	FILE *terrainFile = fopen("test/terrain6.bin", "rb");
 	m_tileData->read(terrainFile);
+
+	m_neighbors = new Neighbors;
+	m_neighbors->init(*m_planet);
 
 	// Initialize OpenGL Resources
 	m_planetDlist = glGenLists( 1 );
@@ -379,7 +383,7 @@ void PlanetGui::redraw()
 
 
 		// DBG: Draw dots on neighbor hexes		
-		m_planet->getNeighbors( m_cursorHex, nb );
+		m_neighbors->getNeighbors( m_cursorHex, nb );
 #if 0
 		glPointSize( 3.0f );
 		glColor3f( 0.0f, 0.0f, 1.0f );
