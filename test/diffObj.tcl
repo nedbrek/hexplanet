@@ -3,14 +3,48 @@ source readObj.tcl
 
 # compare floats with tolerance
 proc almostEqual {f1 f2 {tol .01}} {
-	return [expr {abs($f1 - $f2)/double(min($f1, $f2)) < $tol}]
+
+	# avoid divide by zero
+	if {$f1 == 0.} {
+		return [expr {abs($f2) < $tol}]
+	}
+	if {$f2 == 0.} {
+		return [expr {abs($f1) < $tol}]
+	}
+
+	return [expr {abs($f1 - $f2)/double(min(abs($f1), abs($f2))) < $tol}]
 }
 
 proc translateVert {arrayName point} {
 	upvar $arrayName o2v
+
 	if {[array names o2v $point] eq [list $point]} {
 		return $o2v($point)
 	} else {
+		# point order must match
+		set p0 [lindex $point 0]
+		set p1 [lindex $point 1]
+		set p2 [lindex $point 2]
+
+		# look for a near match
+		foreach n [array names o2v] {
+			set v0 [lindex $n 0]
+			set v1 [lindex $n 1]
+			set v2 [lindex $n 2]
+
+			if {[almostEqual $p0 $v0] &&
+			    [almostEqual $p1 $v1] &&
+			    [almostEqual $p2 $v2]} {
+
+				set val $o2v($n)
+				#puts "Patching vertex $n with $point - index $val"
+
+				array unset o2v $n
+				set o2v($point) $val
+				return $val
+			}
+		}
+
 		puts "No vertex found in $arrayName matching $point"
 		return ""
 	}
@@ -52,7 +86,6 @@ proc diffObj {f1 f2} {
 		incr i
 	}
 
-	set ret 0
 	# build a set of all the triangles in object 2
 	foreach t [dict get $o2 "faces"] {
 		# pull indices
@@ -60,10 +93,11 @@ proc diffObj {f1 f2} {
 		set v1 [lindex $t 1]
 		set v2 [lindex $t 2]
 
-		set tt "$v0 $v1 $v2"
+		set tt [list $v0 $v1 $v2]
 		set o2tri($tt) 1
 	}
 
+	set ret 0
 	# foreach triangle in object 1
 	foreach t [dict get $o1 "faces"] {
 		set v0 [lindex $t 0]
@@ -87,13 +121,13 @@ proc diffObj {f1 f2} {
 		# $pt1 $pt2 $pt0
 		# $pt2 $pt0 $pt1
 		# (assumes winding order is still good)
-		if {[checkTriangle o2tri "$pt0 $pt1 $pt2"]} {
+		if {[checkTriangle o2tri [list $pt0 $pt1 $pt2]]} {
 			continue
 		}
-		if {[checkTriangle o2tri "$pt1 $pt2 $pt0"]} {
+		if {[checkTriangle o2tri [list $pt1 $pt2 $pt0]]} {
 			continue
 		}
-		if {[checkTriangle o2tri "$pt2 $pt0 $pt1"]} {
+		if {[checkTriangle o2tri [list $pt2 $pt0 $pt1]]} {
 			continue
 		}
 
