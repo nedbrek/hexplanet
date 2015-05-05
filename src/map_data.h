@@ -12,6 +12,8 @@ protected:
 	std::vector<uint8_t> data_;
 
 public:
+	void init(const T &val, size_t num);
+
 	// return 0 on success
 	int read(FILE *f);
 
@@ -20,6 +22,13 @@ public:
 	const T& operator[](size_t i) const;
 	T& operator[](size_t i);
 };
+
+template<typename T>
+void MapData<T>::init(const T &val, size_t num)
+{
+	data_.clear();
+	data_.insert(data_.end(), num, val);
+}
 
 template<typename T>
 int MapData<T>::read(FILE *f)
@@ -54,7 +63,7 @@ int MapData<T>::write(FILE *f) const
 
 	for (typename std::vector<T>::const_iterator i = data_.begin(); i != data_.end(); ++i)
 	{
-		ret = fwrite(&data_[i], sizeof(T), 1, f);
+		ret = fwrite(&*i, sizeof(T), 1, f);
 		if (ret != 1)
 			return 2;
 	}
