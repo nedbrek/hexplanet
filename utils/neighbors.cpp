@@ -51,7 +51,7 @@ void Neighbors::update(uint32_t triangleIndex, uint32_t hexIdx)
 	neighbors_[hexIdx][j] = triangleIndex;
 }
 
-void Neighbors::getNeighbors(uint32_t tileIdx, std::vector<uint32_t> &nbrs)
+void Neighbors::getNeighbors(uint32_t tileIdx, std::vector<uint32_t> &nbrs) const
 {
 	for (uint32_t j = 0; j < 6; ++j)
 	{
