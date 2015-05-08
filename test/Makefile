@@ -10,7 +10,7 @@ LT_CXXSRC := ../src/hexplanet.cpp ../src/load_texture.cpp loadTest.cpp
 LT_OBJ := $(LT_CXXSRC:.cpp=.o)
 
 # writeData
-WD_CXXSRC := ../src/hexplanet.cpp ../src/load_texture.cpp writeData.cpp
+WD_CXXSRC := ../utils/fill.cpp ../utils/neighbors.cpp ../src/hexplanet.cpp ../src/load_texture.cpp writeData.cpp
 WD_OBJ := $(WD_CXXSRC:.cpp=.o)
 
 OBJ := $(LT_OBJ) $(WD_OBJ)
