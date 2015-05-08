@@ -48,6 +48,7 @@ PlanetGui::PlanetGui( int gluiMainWin ) :
 	m_terrRandom( 0.17f ),
 	m_terrWatery( 0.5f ),
 	m_tileData(new MapData<uint8_t>),
+	m_plateData(new MapData<uint8_t>),
 	m_altitude(-2500.f)
 {
 	// singleton
@@ -83,6 +84,9 @@ PlanetGui::PlanetGui( int gluiMainWin ) :
 
 	FILE *terrainFile = fopen("test/terrain6.bin", "rb");
 	m_tileData->read(terrainFile);
+
+	FILE *plateFile = fopen("test/plate6.bin", "rb");
+	m_plateData->read(plateFile);
 
 	m_neighbors = new Neighbors;
 	m_neighbors->init(*m_planet);
@@ -321,7 +325,10 @@ void PlanetGui::redraw()
 	if (m_planetDirty)
 	{		
 		glNewList( m_planetDlist, GL_COMPILE_AND_EXECUTE );
-		m_planet->draw( m_drawMode, *m_tileData );	
+		if (m_drawMode == HexPlanet::DrawMode_CONSTRUCTION)
+			m_planet->draw( m_drawMode, *m_plateData );	
+		else
+			m_planet->draw( m_drawMode, *m_tileData );	
 		glEndList();
 
 		m_planetDirty = false;
@@ -444,6 +451,13 @@ void PlanetGui::redraw()
 			glTranslated( 20, pixelRow, 0 );
 			gfDrawStringFmt( "Curr Terrain: %d\n", 
 					(*m_tileData)[ m_cursorHex ] );
+			glPopMatrix();	
+			pixelRow -= ROW_SIZE;
+
+			glPushMatrix();	
+			glTranslated( 20, pixelRow, 0 );
+			gfDrawStringFmt( "Curr plate: %d\n", 
+					(*m_plateData)[ m_cursorHex ] );
 			glPopMatrix();	
 			pixelRow -= ROW_SIZE;
 

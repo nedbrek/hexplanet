@@ -95,6 +95,7 @@ protected:
 	// the planet map
 	HexPlanet *m_planet;
 	MapData<uint8_t> *m_tileData;
+	MapData<uint8_t> *m_plateData;
 	Neighbors *m_neighbors;
 
 	// Planet Rotation

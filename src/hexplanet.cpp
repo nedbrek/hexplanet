@@ -357,27 +357,23 @@ void HexPlanet::draw( int draw_mode, const MapData<uint8_t> &terrainData )
 
 	glEnd();
 #endif
-	
 
-	
 	// Draw the hexes
-	//glColor3f( 1.0f, 1.0f, 1.0f );
-	glEnable( GL_TEXTURE_2D );
-
-	
 	if (draw_mode == DrawMode_CONSTRUCTION)
 	{
-		glBindTexture( GL_TEXTURE_2D, g_texTemplate );		
+		//glBindTexture( GL_TEXTURE_2D, g_texTemplate );		
+		// this mode will use colors
 	} 
 	else if (draw_mode == DrawMode_TERRAIN)
 	{
+		glEnable( GL_TEXTURE_2D );
 		glBindTexture( GL_TEXTURE_2D, g_texTileset );
 	}
 	else // terrain + grid
 	{
+		glEnable( GL_TEXTURE_2D );
 		glBindTexture( GL_TEXTURE_2D, g_texTilesetGrid );
 	}
-
 
 	glBegin( GL_TRIANGLES );
 	for ( std::vector<HexTri>::iterator hi = m_hexdual.begin();
@@ -390,14 +386,29 @@ void HexPlanet::draw( int draw_mode, const MapData<uint8_t> &terrainData )
 
 		if (draw_mode == DrawMode_CONSTRUCTION)
 		{
-			// Template draw mode
-			glTexCoord2f( 0.5f, 0.94999 );
+			// Vertex color mode
+			int cA , cB, cC;
+			cA = terrainData[ (*hi).m_hexA ];
+			cB = terrainData[ (*hi).m_hexB ];
+			cC = terrainData[ (*hi).m_hexC ];
+
+			// treat as 64 color (6 bits)
+			float r = .333 * (cA & 3);
+			float g = .333 * ((cA & 0xc) >> 2);
+			float b = .333 * ((cA & 0x30) >> 4);
+			glColor3f(r, g, b);
 			glVertex3f( pA.x, pA.y, pA.z );
 
-			glTexCoord2f( 0.8897, 0.275 );
+			r = .333 * (cB & 3);
+			g = .333 * ((cB & 0xc) >> 2);
+			b = .333 * ((cB & 0x30) >> 4);
+			glColor3f(r, g, b);
 			glVertex3f( pB.x, pB.y, pB.z );
 
-			glTexCoord2f( 0.1103f, 0.275 );
+			r = .333 * (cC & 3);
+			g = .333 * ((cC & 0xc) >> 2);
+			b = .333 * ((cC & 0x30) >> 4);
+			glColor3f(r, g, b);
 			glVertex3f( pC.x, pC.y, pC.z );		
 		} 
 		else // terrain or terrain_Grid
