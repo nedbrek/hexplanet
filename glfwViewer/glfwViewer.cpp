@@ -1,5 +1,7 @@
-#include <GL/glew.h>
+#include <GL/glew.h> // must be before gl
+#include "../src/hexplanet.h"
 #include <GL/glfw.h>
+#include <fstream>
 #include <iostream>
 
 int initGraphics()
@@ -41,6 +43,10 @@ int initGraphics()
 int main(int argc, char **argv)
 {
 	initGraphics();
+
+	HexPlanet p;
+	std::ifstream is("../test/sphere9.fixed.obj");
+	p.read(is);
 
 	bool running = true;
 	while (running)

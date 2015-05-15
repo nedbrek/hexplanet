@@ -1,6 +1,7 @@
 CXX ?= g++
 CXXFLAGS += -MP -MMD -Wall -g -O3
-LDFLAGS += -Wall -lglfw -lGLEW
+LDFLAGS += -Wall
+LIBS := -lglfw -lGLEW ../libHexPlanet.a
 
 CXXSRC := glfwViewer.cpp
 
@@ -17,5 +18,5 @@ all: $(BIN)
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(BIN): $(OBJ)
-	@$(CXX) -o $@ $^ $(LDFLAGS)
+	@$(CXX) -o $@ $^ $(LDFLAGS) $(LIBS)
 
