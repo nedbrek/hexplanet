@@ -5,6 +5,7 @@
 /test/*.o
 /test/*.d
 /hex_planet.exe
+/libHexPlanet.a
 /test/loadTest.exe
 /test/writeData.exe
 *.obj

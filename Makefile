@@ -4,17 +4,18 @@ CXXFLAGS += -MP -MMD -Wall -g -O3
 CFLAGS += -MP -MMD -Wall -g
 LDFLAGS += -Wall -lGLEW -lglui -lGL
 
-CXXSRC := src/hexplanet.cpp src/hexp_main.cpp src/load_texture.cpp \
-src/planet_gui.cpp utils/neighbors.cpp
+LIBSRC := src/hexplanet.cpp utils/neighbors.cpp src/load_texture.cpp
+CXXSRC := $(LIBSRC) src/hexp_main.cpp src/planet_gui.cpp
 
 CSRC := src/gamefontgl.c
 
 BIN := hex_planet.exe
 OBJ := $(CXXSRC:.cpp=.o) $(CSRC:.c=.o)
+LIBOBJ := $(LIBSRC:.cpp=.o)
 DEP := $(OBJ:.o=.d)
 
 .PHONY: all
-all: $(BIN)
+all: $(BIN) libHexPlanet.a
 
 -include $(DEP)
 
@@ -26,6 +27,9 @@ all: $(BIN)
 
 $(BIN): $(OBJ)
 	@$(CXX) -o $@ $^ $(LDFLAGS)
+
+libHexPlanet.a: $(LIBOBJ)
+	@ar r -s $@ $^
 
 .PHONY: clean
 clean:
