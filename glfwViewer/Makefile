@@ -1,7 +1,7 @@
 CXX ?= g++
 CXXFLAGS += -MP -MMD -Wall -g -O3
 LDFLAGS += -Wall
-LIBS := -lglfw -lGLEW ../libHexPlanet.a
+LIBS := -lglfw -lGLEW -lGL ../libHexPlanet.a
 
 CXXSRC := glfwViewer.cpp
 
