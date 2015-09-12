@@ -1,23 +1,10 @@
-#ifdef WIN32
-#include <windows.h>
-#endif
-
-#include <assert.h>
-#include <stdio.h>
-
-//#include <SDL.h>
-//#include <SDL_endian.h>
-#include <sys/types.h>
-
-#include <GL/glew.h>
-
-#include <GL/gl.h>
-#include <GL/glu.h>
-
-//#include "debug.h"
 #include "load_texture.h"
-#include <cstring>
+#include <GL/glu.h>
+#include <sys/types.h>
+#include <cassert>
+#include <cstdio>
 #include <cstdlib>
+#include <cstring>
 
 #ifdef WIN32
 typedef unsigned __int8 Uint8;
@@ -109,7 +96,7 @@ GenericImage *ReadDDSFile( const char *filename, Uint32 *bufsize, Uint32 *numMip
 	if (fp == NULL) return NULL;
 
 	// verify the file type
-	fread( filecode, 1, 4, fp );
+	size_t ret = fread( filecode, 1, 4, fp );
 	if (strncmp( (const char *)filecode, "DDS ", 4)!=0)
 	{
 		fclose(fp);
@@ -117,7 +104,7 @@ GenericImage *ReadDDSFile( const char *filename, Uint32 *bufsize, Uint32 *numMip
 	}
 
 	// read the file
-	fread( &ddsd, sizeof(ddsd), 1, fp );
+	ret = fread( &ddsd, sizeof(ddsd), 1, fp );
 
 	// Get the image data
 	img = (GenericImage*)malloc(sizeof(GenericImage));
@@ -128,7 +115,9 @@ GenericImage *ReadDDSFile( const char *filename, Uint32 *bufsize, Uint32 *numMip
 	
 	// load image data
 	img->pixeldata = (Uint8*)malloc( *bufsize * sizeof(Uint8) );
-	fread( img->pixeldata, 1, *bufsize, fp );
+	ret = fread( img->pixeldata, 1, *bufsize, fp );
+	if (ret == 0)
+		printf("Failed to read all data.\n");
 	fclose( fp );
 
 	// get image information
