@@ -2,6 +2,7 @@
 #define PLANET_GUI_H
 
 #include "hexplanet.h"
+#include "load_texture.h"
 
 class GLUI;
 template<typename T> class MapData;
@@ -22,6 +23,12 @@ struct Star
 class PlanetGui
 {
 public:
+	enum {
+		DrawMode_CONSTRUCTION, // Show construction
+		DrawMode_TERRAIN,      // Terrain with no grid
+		DrawMode_TERRAINGRID,  // Terrain with grid
+	};
+
 	PlanetGui(int gluiMainWin);
 
 	void buildInterface();
@@ -116,6 +123,12 @@ protected: // data
 
 	// singleton
 	static PlanetGui *s_theGUI;
+
+	// static resources
+	static bool m_initStaticRes;
+	static GLuint g_texTemplate;
+	static GLuint g_texTileset;
+	static GLuint g_texTilesetGrid; // Tileset with outline
 
 public:
 	// updated from main

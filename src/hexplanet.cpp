@@ -1,19 +1,12 @@
 #include "hexplanet.h"
 #include "load_texture.h"
 #include "map_data.h"
-// GL and related includes
-#include <GL/glut.h>
 #include <algorithm>
 #include <iostream>
 #include <map>
 #include <set>
 #include <string>
 #include <vector>
-
-bool HexPlanet::m_initStaticRes = false;
-GLuint HexPlanet::g_texTemplate = 0;
-GLuint HexPlanet::g_texTileset = 0;
-GLuint HexPlanet::g_texTilesetGrid = 0;
 
 float HexPlanet::kPlanetRadius = 1000.0f;
 
@@ -314,17 +307,8 @@ void HexPlanet::projectToSphere()
 //=============================
 // draw()
 //=============================
-void HexPlanet::draw( int draw_mode, const MapData<uint8_t> &terrainData )
+void HexPlanet::draw( bool colorData, const MapData<uint8_t> &terrainData )
 {
-	// Initialize static resources
-	if (!m_initStaticRes)
-	{
-		m_initStaticRes = true;
-		g_texTemplate = loadTextureDDS( "datafiles/template.dds" );
-		g_texTileset = loadTextureDDS( "datafiles/tileset.dds" );
-		g_texTilesetGrid = loadTextureDDS( "datafiles/tileset_grid.dds" );
-	}
-
 	//DBG: Draw axes
 #if 0
 	glBegin( GL_LINES );
@@ -345,23 +329,6 @@ void HexPlanet::draw( int draw_mode, const MapData<uint8_t> &terrainData )
 	glEnd();
 #endif
 
-	// Draw the hexes
-	if (draw_mode == DrawMode_CONSTRUCTION)
-	{
-		//glBindTexture( GL_TEXTURE_2D, g_texTemplate );		
-		// this mode will use colors
-	} 
-	else if (draw_mode == DrawMode_TERRAIN)
-	{
-		glEnable( GL_TEXTURE_2D );
-		glBindTexture( GL_TEXTURE_2D, g_texTileset );
-	}
-	else // terrain + grid
-	{
-		glEnable( GL_TEXTURE_2D );
-		glBindTexture( GL_TEXTURE_2D, g_texTilesetGrid );
-	}
-
 	glBegin( GL_TRIANGLES );
 	for ( std::vector<HexTri>::iterator hi = m_hexdual.begin();
 		 hi != m_hexdual.end(); hi++ )
@@ -371,7 +338,7 @@ void HexPlanet::draw( int draw_mode, const MapData<uint8_t> &terrainData )
 		pB = m_hexes[ (*hi).m_hexB ].m_vertPos;
 		pC = m_hexes[ (*hi).m_hexC ].m_vertPos;	
 
-		if (draw_mode == DrawMode_CONSTRUCTION)
+		if (colorData)
 		{
 			// Vertex color mode
 			int cA , cB, cC;

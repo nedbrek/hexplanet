@@ -1,19 +1,9 @@
 #ifndef HEXPLANET_H
 #define HEXPLANET_H
 
-// must include windows.h before GL on win32
-#ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
-
-#include <GL/glew.h>
-#include <GL/gl.h>
-#ifdef WIN32
-#include <GL/glaux.h>
-#endif
 #include <OpenEXR/ImathVec.h>
 #include <OpenEXR/ImathColor.h>
+#include <stdint.h>
 #include <vector>
 
 template<typename T> class MapData;
@@ -73,18 +63,16 @@ public:
 	HexPlanet();
 	HexPlanet( int subd_level, float trandom, float twatery );
 
-	enum {
-		DrawMode_CONSTRUCTION, // Show construction
-		DrawMode_TERRAIN,      // Terrain with no grid
-		DrawMode_TERRAINGRID,  // Terrain with grid
-	};
-
 	void write( std::ostream &o );
 	void read( std::istream &i );
 
 	void repairNormals();
 
-	void draw( int draw_mode, const MapData<uint8_t> &terrainData );
+	/**
+	 * @param colorTextureBar true if data is colors, false if data is texture indexes
+	 * @param terrainData data to use for hex terrain
+	 */
+	void draw( bool colorTextureBar, const MapData<uint8_t> &terrainData );
 
 	size_t getNumHexes() const;
 
@@ -116,12 +104,6 @@ public:
 	// data
 	std::vector<HexTile> m_hexes;
 	std::vector<HexTri> m_hexdual;
-
-	// static resources
-	static bool m_initStaticRes;
-	static GLuint g_texTemplate;
-	static GLuint g_texTileset;
-	static GLuint g_texTilesetGrid; // Tileset with outline
 
 	static float kPlanetRadius;
 };

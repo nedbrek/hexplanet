@@ -1,5 +1,4 @@
 #include "planet_gui.h"
-#include "load_texture.h"
 #include "map_data.h"
 #include "gamefontgl.h"
 #include "../utils/neighbors.h"
@@ -19,6 +18,11 @@ float PlanetGui::_ident[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
 PlanetGui *PlanetGui::s_theGUI = NULL;
 const int PlanetGui::kMaxSubdivisionLevel = 6;
 
+bool PlanetGui::m_initStaticRes = false;
+GLuint PlanetGui::g_texTemplate = 0;
+GLuint PlanetGui::g_texTileset = 0;
+GLuint PlanetGui::g_texTilesetGrid = 0;
+
 //=============================
 // PlanetGui ctor
 //=============================
@@ -31,7 +35,7 @@ PlanetGui::PlanetGui( int gluiMainWin ) :
 	m_beautyMode( 1 ),
 	m_showStats( 1 ),
 	m_subdLevel ( 3 ),
-	m_drawMode( HexPlanet::DrawMode_TERRAIN ),
+	m_drawMode( DrawMode_TERRAIN ),
 	m_paintTile( Terrain_DESERT ),
 	m_terrRandom( 0.17f ),
 	m_terrWatery( 0.5f ),
@@ -182,6 +186,15 @@ void PlanetGui::buildInterface()
 //=============================
 void PlanetGui::redraw()
 {
+	// Initialize static resources
+	if (!m_initStaticRes)
+	{
+		m_initStaticRes = true;
+		g_texTemplate = loadTextureDDS( "datafiles/template.dds" );
+		g_texTileset = loadTextureDDS( "datafiles/tileset.dds" );
+		g_texTilesetGrid = loadTextureDDS( "datafiles/tileset_grid.dds" );
+	}
+
 	if (m_beautyMode)
 	{
 		glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
@@ -260,8 +273,6 @@ void PlanetGui::redraw()
 		glLightfv( GL_LIGHT2, GL_DIFFUSE, rim_color );	
 	}
 
-	
-
 	// camera distance
 	glLoadIdentity();
 	glTranslatef( 0.0, 0.0, m_altitude );				
@@ -313,10 +324,29 @@ void PlanetGui::redraw()
 	if (m_planetDirty)
 	{		
 		glNewList( m_planetDlist, GL_COMPILE_AND_EXECUTE );
-		if (m_drawMode == HexPlanet::DrawMode_CONSTRUCTION)
-			m_planet->draw( m_drawMode, *m_plateData );	
-		else
-			m_planet->draw( m_drawMode, *m_tileData );	
+
+		// Draw the hexes
+		MapData<uint8_t> *data = NULL;
+		if (m_drawMode == DrawMode_CONSTRUCTION)
+		{
+			// this mode will use colors
+			//glBindTexture( GL_TEXTURE_2D, g_texTemplate );
+			data = m_plateData;
+		}
+		else if (m_drawMode == DrawMode_TERRAIN)
+		{
+			glEnable( GL_TEXTURE_2D );
+			glBindTexture( GL_TEXTURE_2D, g_texTileset );
+			data = m_tileData;
+		}
+		else // terrain + grid
+		{
+			glEnable( GL_TEXTURE_2D );
+			glBindTexture( GL_TEXTURE_2D, g_texTilesetGrid );
+			data = m_tileData;
+		}
+		m_planet->draw( m_drawMode == DrawMode_CONSTRUCTION, *data );
+
 		glEndList();
 
 		m_planetDirty = false;
