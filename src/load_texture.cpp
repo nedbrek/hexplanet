@@ -20,6 +20,7 @@ typedef uint32_t Uint32;
 // Most of the DDS code comes from from the NVidia Whitepaper
 // "Using Texture Compression in OpenGL" by Sebastien Domine
 
+// make a 32 bit integer from 4 bytes.  'a' is LSB
 #define DDS_MAKEFOURCC(a, b, c, d) \
        ((Uint32)(Uint8)(a) | ((Uint32)(Uint8)(b) << 8) |   \
 	   ((Uint32)(Uint8)(c) << 16) | ((Uint32)(Uint8)(d) << 24 ))
@@ -84,41 +85,40 @@ struct GenericImage
 	Uint8 *pixeldata;
 };
 
-GenericImage *ReadDDSFile( const char *filename, Uint32 *bufsize, Uint32 *numMipmaps )
+///@return malloc'd image
+GenericImage* ReadDDSFile(const char *filename, Uint32 *bufsize, Uint32 *numMipmaps)
 {
-	GenericImage *img;
-	DDSURFACEDESC2_INFO ddsd;
-	char *filecode[4];
-	FILE *fp;
-
 	// try to open the file
-	fp = fopen( filename, "rb" );
+	FILE *fp = fopen(filename, "rb");
 	if (fp == NULL) return NULL;
 
 	// verify the file type
-	size_t ret = fread( filecode, 1, 4, fp );
-	if (strncmp( (const char *)filecode, "DDS ", 4)!=0)
+	char *filecode[4] = {0,};
+	size_t ret = fread(filecode, 1, 4, fp);
+	if (ret != 4 || strncmp((const char*)filecode, "DDS ", 4) != 0)
 	{
 		fclose(fp);
 		return NULL;
 	}
 
-	// read the file
-	ret = fread( &ddsd, sizeof(ddsd), 1, fp );
+	// read the file info
+	DDSURFACEDESC2_INFO ddsd;
+	ret = fread(&ddsd, sizeof(ddsd), 1, fp);
 
 	// Get the image data
-	img = (GenericImage*)malloc(sizeof(GenericImage));
-	memset( img, 0, sizeof(GenericImage));
+	//--- read header
+	GenericImage *img = (GenericImage*)malloc(sizeof(GenericImage));
+	memset(img, 0, sizeof(GenericImage));
 
-	// calculate image size
+	//--- calculate image size
 	*bufsize = ddsd.dwMipMapCount > 1? ddsd.dwLinearSize * 2 : ddsd.dwLinearSize;
 	
-	// load image data
-	img->pixeldata = (Uint8*)malloc( *bufsize * sizeof(Uint8) );
-	ret = fread( img->pixeldata, 1, *bufsize, fp );
+	//--- load image data
+	img->pixeldata = (Uint8*)malloc(*bufsize * sizeof(Uint8));
+	ret = fread(img->pixeldata, 1, *bufsize, fp);
 	if (ret == 0)
 		printf("Failed to read all data.\n");
-	fclose( fp );
+	fclose(fp);
 
 	// get image information
 	img->w = ddsd.dwWidth;
@@ -126,7 +126,7 @@ GenericImage *ReadDDSFile( const char *filename, Uint32 *bufsize, Uint32 *numMip
 	img->comp = (ddsd.ddpfPixelFormat.dwFourCC == DDS_FOURCC_DXT1) ? 3 : 4;
 	*numMipmaps = ddsd.dwMipMapCount;
 
-	switch( ddsd.ddpfPixelFormat.dwFourCC)
+	switch(ddsd.ddpfPixelFormat.dwFourCC)
 	{
 		case DDS_FOURCC_DXT1:
 			img->format = DDS_GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
@@ -148,44 +148,43 @@ GenericImage *ReadDDSFile( const char *filename, Uint32 *bufsize, Uint32 *numMip
 	return img;
 }
 
-GLuint loadTextureDDS( const char *filename )
+GLuint loadTextureDDS(const char *filename)
 {
+	// read the file into an image in memory
+	Uint32 ddsBufSize = 0;
+	Uint32 numMipmaps = 0;
+	GenericImage *ddsImage = ReadDDSFile(filename, &ddsBufSize, &numMipmaps);
+	assert(ddsImage && "Could not load texture");
+
+	// generate a texture id and bind it to current context
 	GLuint glTexID;
-
-	Uint32 ddsBufSize;
-	Uint32 numMipmaps;
-	GenericImage *ddsImage = ReadDDSFile( filename, &ddsBufSize, &numMipmaps );
-
-	assert( ddsImage && "Could not load texture" );
-
-	Uint32 width, height, offset, size;
-	Uint32 blocksize = (ddsImage->format == DDS_GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
-
-	glGenTextures( 1, &glTexID );
-	glBindTexture( GL_TEXTURE_2D, glTexID );
+	glGenTextures(1, &glTexID);
+	glBindTexture(GL_TEXTURE_2D, glTexID);
 
 	// Load the mipmap levels
-	offset = 0;
-	width = ddsImage->w;
-	height = ddsImage->h;
-	for (Uint32 i=0; i < numMipmaps && (width || height); i++)
+	const Uint32 blocksize = (ddsImage->format == DDS_GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
+
+	// loop carry dependencies
+	Uint32 offset = 0;
+	Uint32 width = ddsImage->w;
+	Uint32 height = ddsImage->h;
+	for (Uint32 i = 0; i < numMipmaps && (width || height); ++i)
 	{
-		if (width==0)
-		{
+		// check for underflow
+		if (width == 0)
 			width = 1;
-		}
-
-		if (height==0)
-		{
+		if (height == 0)
 			height = 1;
-		}
 
-		size = ((width+3)/4) * ((height+3)/4) * blocksize;
-		glCompressedTexImage2DARB( GL_TEXTURE_2D, i, ddsImage->format, width, height,
-									0, size, ddsImage->pixeldata + offset );
+		const Uint32 size = ((width+3)/4) * ((height+3)/4) * blocksize;
+		glCompressedTexImage2DARB(GL_TEXTURE_2D, i, ddsImage->format, width, height,
+									0, size, ddsImage->pixeldata + offset);
 
 		//GLErrorReport() // probably a good idea
-		offset += size;
+
+		offset += size; // move to next mipmap data offset
+
+		// each mipmap is quarter size (half in each dimension)
 		width >>= 1;
 		height >>= 1;
 	}

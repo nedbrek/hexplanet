@@ -7,9 +7,8 @@
 
 #include <GL/glew.h> // glew before gl
 #include <GL/gl.h>
-#include <GL/glu.h>
 
-// creates and returns a GL textureID
+/// @return allocated GL textureID for texture given by 'filename'
 GLuint loadTextureDDS(const char *filename);
 
 #endif
