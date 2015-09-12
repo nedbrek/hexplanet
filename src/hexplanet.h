@@ -1,16 +1,21 @@
 #ifndef HEXPLANET_H
 #define HEXPLANET_H
 
-#include <vector>
+// must include windows.h before GL on win32
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
 
-#include <OpenEXR/ImathVec.h>
-#include <OpenEXR/ImathColor.h>
-
+#include <GL/glew.h>
 #include <GL/gl.h>
 #ifdef WIN32
 #include <GL/glaux.h>
 #endif
 #include <GL/glu.h>
+#include <OpenEXR/ImathVec.h>
+#include <OpenEXR/ImathColor.h>
+#include <vector>
 
 template<typename T> class MapData;
 

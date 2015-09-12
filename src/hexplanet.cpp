@@ -1,32 +1,19 @@
-#include <string>
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-// must include windows.h before GL on win32
-#ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
-
-// GL and related includes
-#include <GL/gl.h>
-#ifdef WIN32
-#include <GL/glaux.h>
-#endif
-#include <GL/glu.h>
-#include <GL/glut.h>
-
-#include "load_texture.h"
 #include "hexplanet.h"
+#include "load_texture.h"
 #include "map_data.h"
+// GL and related includes
+#include <GL/glut.h>
+#include <algorithm>
+#include <iostream>
 #include <map>
 #include <set>
+#include <string>
+#include <vector>
 
 bool HexPlanet::m_initStaticRes = false;
-GLuint HexPlanet::g_texTemplate;
-GLuint HexPlanet::g_texTileset;
-GLuint HexPlanet::g_texTilesetGrid;
+GLuint HexPlanet::g_texTemplate = 0;
+GLuint HexPlanet::g_texTileset = 0;
+GLuint HexPlanet::g_texTilesetGrid = 0;
 
 float HexPlanet::kPlanetRadius = 1000.0f;
 

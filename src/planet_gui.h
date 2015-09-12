@@ -1,12 +1,10 @@
 #ifndef PLANET_GUI_H
 #define PLANET_GUI_H
 
+#include "hexplanet.h"
 #include <GL/glut.h>
 #include <GL/glui.h>
-
 #include <OpenEXR/ImathVec.h>
-
-#include "hexplanet.h"
 
 template<typename T> class MapData;
 class Neighbors;
