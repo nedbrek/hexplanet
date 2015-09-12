@@ -1,4 +1,6 @@
 #include "planet_gui.h"
+#include <GL/glui.h>
+#include <GL/glut.h>
 #include <iostream>
 #include <vector>
 

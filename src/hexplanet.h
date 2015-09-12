@@ -12,7 +12,6 @@
 #ifdef WIN32
 #include <GL/glaux.h>
 #endif
-#include <GL/glu.h>
 #include <OpenEXR/ImathVec.h>
 #include <OpenEXR/ImathColor.h>
 #include <vector>

@@ -1,31 +1,19 @@
 #include "planet_gui.h"
+#include "load_texture.h"
+#include "map_data.h"
+#include "gamefontgl.h"
 #include "../utils/neighbors.h"
+#include <OpenEXR/ImathVec.h>
 #include <iostream>
 #include <vector>
 #include <assert.h>
-
-// must include windows.h before GL on win32
-#ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
+#include <fstream>
 
 // GL and related includes
-#include <GL/gl.h>
-#ifdef WIN32
-#include <GL/glaux.h>
-#endif
 #include <GL/glu.h>
-
 #include <GL/glut.h>
 #include <GL/glui.h>
 
-#include <OpenEXR/ImathVec.h>
-
-#include "load_texture.h"
-#include "gamefontgl.h"
-#include "map_data.h"
-#include <fstream>
 
 float PlanetGui::_ident[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
 PlanetGui *PlanetGui::s_theGUI = NULL;

@@ -2,10 +2,8 @@
 #define PLANET_GUI_H
 
 #include "hexplanet.h"
-#include <GL/glut.h>
-#include <GL/glui.h>
-#include <OpenEXR/ImathVec.h>
 
+class GLUI;
 template<typename T> class MapData;
 class Neighbors;
 
@@ -24,7 +22,7 @@ struct Star
 class PlanetGui
 {
 public:
-	PlanetGui( int gluiMainWin );
+	PlanetGui(int gluiMainWin);
 
 	void buildInterface();
 
@@ -32,11 +30,18 @@ public:
 
 	void paintTile();
 
-protected:
-
+protected: // methods
 	// Updates the hex cursor pos
 	void updateCursorPos();
 
+	// callbacks
+	void cbControl(int id);
+
+	// helpers for drawing in beauty mode
+	void drawAtmosphere();
+	void drawStarfield();
+
+protected: // data
 	// font stuff
 	GLuint m_glFontTexId_console;
 	GLuint m_fntConsole;
@@ -44,9 +49,6 @@ protected:
 	// Glut and GLUI widgets
 	GLUI *m_glui;
 	int m_gluiMainWin;
-
-	// callbacks
-	void cbControl( int id );
 
 	// Widget IDs
 	enum {
@@ -106,26 +108,21 @@ protected:
 	double m_modelView[16], m_projection[16];
 	int m_viewport[4];
 
+	GLuint m_texStars;
+	std::vector<Star> m_stars;
+
 	// default rotations
 	static float _ident[16];
 
 	// singleton
 	static PlanetGui *s_theGUI;
 
-	// helpers for drawing in beauty mode
-	void drawAtmosphere();
-	void drawStarfield();	
-	
-	GLuint m_texStars;
-	std::vector<Star> m_stars;
-
 public:
-	
 	// updated from main
 	int m_mouseX, m_mouseY;
 
 	//Callbacks
-	static void control_cb( int control );
+	static void control_cb(int control);
 
 	// max subd level
 	static const int kMaxSubdivisionLevel;	
