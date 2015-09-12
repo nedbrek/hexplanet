@@ -5,9 +5,13 @@
 #include <fstream>
 #include <cstdlib>
 
+const char *const SPHERE_TO_USE = "sphere6.fixed.obj";
+const char *const PLATE_FILE = "plate6.bin";
+const char *const TERRAIN_FILE = "terrain6.bin";
+
 void writePlates()
 {
-	std::ifstream is("sphere6.fixed.obj");
+	std::ifstream is(SPHERE_TO_USE);
 	HexPlanet p;
 	p.read(is);
 	p.projectToSphere();
@@ -28,15 +32,19 @@ void writePlates()
 
 	f.fill();
 
-	FILE *of = fopen("plate6.bin", "wb");
+	FILE *of = fopen(PLATE_FILE, "wb");
 	f.write(of);
 }
 
 void writeTerrain()
 {
-	const uint32_t numTiles = 7292; // sphere 6
+	std::ifstream is(SPHERE_TO_USE);
+	HexPlanet p;
+	p.read(is);
+	p.projectToSphere();
+	const uint32_t numTiles = p.getNumHexes();
 
-	FILE *f = fopen("terrain6.bin", "wb");
+	FILE *f = fopen(TERRAIN_FILE, "wb");
 	fwrite(&numTiles, 4, 1, f);
 	for (uint32_t i = 0; i < numTiles; ++i)
 	{
@@ -45,7 +53,7 @@ void writeTerrain()
 	}
 	fclose(f);
 
-	f = fopen("terrain6.bin", "rb");
+	f = fopen(TERRAIN_FILE, "rb");
 	MapData<uint8_t> map;
 	const int ret = map.read(f);
 	if (ret != 0)
@@ -66,6 +74,11 @@ int main(int argc, char **argv)
 		writeTerrain();
 	else if (argv[1][0] == 'p')
 		writePlates();
+	else
+	{
+		printf("Usage %s <t|p>\n", argv[0]);
+		return 1;
+	}
 
 	return 0;
 }
