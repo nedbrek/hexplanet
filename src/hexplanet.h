@@ -75,6 +75,7 @@ public:
 	void draw( bool colorTextureBar, const MapData<uint8_t> &terrainData );
 
 	size_t getNumHexes() const;
+	size_t numTriangles() const { return m_triangles.size(); }
 
 	void subdivide( float trandom, float twatery );
 
@@ -94,16 +95,19 @@ public:
 	// hex containing it
 	size_t getHexIndexFromPoint( Imath::V3f surfPos );
 
-//protected:
+	const HexTri& triangle(size_t triIndex) const { return m_triangles[triIndex]; }
+
+	void projectToSphere();
+
+protected:
 	int m_subdLevel;
 
 	// construction operations
 	void buildLevel0( float twatery );	
-	void projectToSphere();
 
 	// data
 	std::vector<HexTile> m_hexes;
-	std::vector<HexTri> m_hexdual;
+	std::vector<HexTri> m_triangles;
 
 	static float kPlanetRadius;
 };

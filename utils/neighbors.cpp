@@ -24,11 +24,11 @@ void Neighbors::init(const HexPlanet &planet)
 
 	// it would be nice to use planet.getNeighbors() here, but it costs O(N)
 	// (which would give us O(N^2))
-	for (size_t ti = 0; ti != planet.m_hexdual.size(); ++ti)
+	for (size_t ti = 0; ti != planet.numTriangles(); ++ti)
 	{
-		update(ti, planet.m_hexdual[ti].m_hexA);
-		update(ti, planet.m_hexdual[ti].m_hexB);
-		update(ti, planet.m_hexdual[ti].m_hexC);
+		update(ti, planet.triangle(ti).m_hexA);
+		update(ti, planet.triangle(ti).m_hexB);
+		update(ti, planet.triangle(ti).m_hexC);
 	}
 }
 

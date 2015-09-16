@@ -43,7 +43,7 @@ void Fill::plantNeighbors(uint32_t tileNum)
 		if (triIndex == uint32_t(-1))
 			continue;
 
-		const HexTri &tri = planet_.m_hexdual[triIndex];
+		const HexTri &tri = planet_.triangle(triIndex);
 		plantTriVert(tri.m_hexA, value);
 		plantTriVert(tri.m_hexB, value);
 		plantTriVert(tri.m_hexC, value);

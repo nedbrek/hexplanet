@@ -85,8 +85,8 @@ void HexPlanet::write( std::ostream &o )
 		  << std::endl;
 	}
 
-	o << "# " << m_hexdual.size() << " Faces" << std::endl;
-	for (std::vector<HexTri>::const_iterator i = m_hexdual.begin(); i != m_hexdual.end(); ++i)
+	o << "# " << m_triangles.size() << " Faces" << std::endl;
+	for (std::vector<HexTri>::const_iterator i = m_triangles.begin(); i != m_triangles.end(); ++i)
 	{
 		o << 'f'
 		  << ' ' << i->m_hexA +1
@@ -121,14 +121,14 @@ void HexPlanet::read( std::istream &is )
 			// face - 3 vert indices
 			uint32_t x, y, z;
 			iss >> x >> y >> z;
-			m_hexdual.push_back(HexTri(x-1, y-1, z-1));
+			m_triangles.push_back(HexTri(x-1, y-1, z-1));
 		}
 	}
 }
 
 void HexPlanet::repairNormals()
 {
-	for (std::vector<HexTri>::iterator i = m_hexdual.begin(); i != m_hexdual.end(); ++i)
+	for (std::vector<HexTri>::iterator i = m_triangles.begin(); i != m_triangles.end(); ++i)
 	{
 		// pull three verts of triangle
 		const Imath::V3f p0 = m_hexes[i->m_hexA].normal();
@@ -174,26 +174,26 @@ void HexPlanet::buildLevel0( float twatery )
 	m_hexes.push_back( HexTile( Imath::V3f( -1.17082f, 0.723606f, 0.0f )));
 	m_hexes.push_back( HexTile( Imath::V3f( -1.17082f, -0.723606f,  0.0f )));
 
-	m_hexdual.push_back( HexTri( 5, 11, 6 ));
-	m_hexdual.push_back( HexTri( 1, 2, 0 ));
-	m_hexdual.push_back( HexTri( 0, 2, 3 ));
-	m_hexdual.push_back( HexTri( 5, 6, 4 ));
-	m_hexdual.push_back( HexTri( 4, 6, 7 ));
-	m_hexdual.push_back( HexTri( 9, 1, 0 ));
-	m_hexdual.push_back( HexTri( 10, 2, 1 ));
-	m_hexdual.push_back( HexTri( 2, 10, 11 ));
-	m_hexdual.push_back( HexTri( 11, 3, 2 ));
-	m_hexdual.push_back( HexTri( 8, 9, 0 ));
-	m_hexdual.push_back( HexTri( 0, 3, 8 ));
-	m_hexdual.push_back( HexTri( 11, 10, 6 ));
-	m_hexdual.push_back( HexTri( 4, 7, 9 ));
-	m_hexdual.push_back( HexTri( 9, 8, 4 ));
-	m_hexdual.push_back( HexTri( 7, 6, 10 ));
-	m_hexdual.push_back( HexTri( 1, 9, 7 ));
-	m_hexdual.push_back( HexTri( 10, 1, 7 ));
-	m_hexdual.push_back( HexTri( 5, 4, 8 ));
-	m_hexdual.push_back( HexTri( 3, 11, 5 ));
-	m_hexdual.push_back( HexTri( 8, 3, 5 ));	
+	m_triangles.push_back( HexTri( 5, 11, 6 ));
+	m_triangles.push_back( HexTri( 1, 2, 0 ));
+	m_triangles.push_back( HexTri( 0, 2, 3 ));
+	m_triangles.push_back( HexTri( 5, 6, 4 ));
+	m_triangles.push_back( HexTri( 4, 6, 7 ));
+	m_triangles.push_back( HexTri( 9, 1, 0 ));
+	m_triangles.push_back( HexTri( 10, 2, 1 ));
+	m_triangles.push_back( HexTri( 2, 10, 11 ));
+	m_triangles.push_back( HexTri( 11, 3, 2 ));
+	m_triangles.push_back( HexTri( 8, 9, 0 ));
+	m_triangles.push_back( HexTri( 0, 3, 8 ));
+	m_triangles.push_back( HexTri( 11, 10, 6 ));
+	m_triangles.push_back( HexTri( 4, 7, 9 ));
+	m_triangles.push_back( HexTri( 9, 8, 4 ));
+	m_triangles.push_back( HexTri( 7, 6, 10 ));
+	m_triangles.push_back( HexTri( 1, 9, 7 ));
+	m_triangles.push_back( HexTri( 10, 1, 7 ));
+	m_triangles.push_back( HexTri( 5, 4, 8 ));
+	m_triangles.push_back( HexTri( 3, 11, 5 ));
+	m_triangles.push_back( HexTri( 8, 3, 5 ));
 
 	// make planet sized
 	// projectToSphere();
@@ -226,9 +226,9 @@ void HexPlanet::subdivide( float trandom, float twatery )
 
 	// generate adjacency info
 	AdjacencyMap adjacencyInfo;
-	for (size_t ti = 0; ti != m_hexdual.size(); ++ti)
+	for (size_t ti = 0; ti != m_triangles.size(); ++ti)
 	{
-		const HexTri &t = m_hexdual[ti];
+		const HexTri &t = m_triangles[ti];
 		std::pair<uint32_t, uint32_t> eidAB( std::min( t.m_hexA, t.m_hexB ), std::max( t.m_hexA, t.m_hexB ) );
 		updateAdjacencyInfo(eidAB, ti, adjacencyInfo);
 
@@ -240,8 +240,8 @@ void HexPlanet::subdivide( float trandom, float twatery )
 	}
 
 	// foreach triangle in the old mesh, create a new vert at the center
-	for (std::vector<HexTri>::iterator ti = m_hexdual.begin();
-		 ti != m_hexdual.end(); ti++ )
+	for (std::vector<HexTri>::iterator ti = m_triangles.begin();
+		 ti != m_triangles.end(); ti++ )
 	{
 		// Create a new vert at the center of the triangle
 		Imath::V3f pNewVert;
@@ -271,15 +271,15 @@ void HexPlanet::subdivide( float trandom, float twatery )
 		const uint32_t a = ei->first.first;
 		const uint32_t b = ei->first.second;
 
-		HexTri *t = &m_hexdual[ei->second.first];
-		HexTri *ot = &m_hexdual[ei->second.second];
+		HexTri *t = &m_triangles[ei->second.first];
+		HexTri *ot = &m_triangles[ei->second.second];
 
 		newHexdual.push_back( HexTri(a, t->m_tmp.m_newvert, ot->m_tmp.m_newvert) );
 		newHexdual.push_back( HexTri(t->m_tmp.m_newvert, ot->m_tmp.m_newvert, b) );
 	}
 
 	// replace the current set of hexes with the dual
-	m_hexdual = newHexdual;
+	m_triangles = newHexdual;
 
 	// reproject back to sphere
 	projectToSphere();
@@ -330,8 +330,8 @@ void HexPlanet::draw( bool colorData, const MapData<uint8_t> &terrainData )
 #endif
 
 	glBegin( GL_TRIANGLES );
-	for ( std::vector<HexTri>::iterator hi = m_hexdual.begin();
-		 hi != m_hexdual.end(); hi++ )
+	for ( std::vector<HexTri>::iterator hi = m_triangles.begin();
+		 hi != m_triangles.end(); hi++ )
 	{
 		Imath::V3f pA, pB, pC;
 		pA = m_hexes[ (*hi).m_hexA ].m_vertPos;
@@ -413,8 +413,8 @@ void HexPlanet::draw( bool colorData, const MapData<uint8_t> &terrainData )
 	glColor3f( 1.0f, 1.0f, 1.0f );
 	glLineWidth( 2.0f );	
 	
-	for ( std::vector<HexTri>::iterator hi = m_hexdual.begin();
-		 hi != m_hexdual.end(); hi++ )
+	for ( std::vector<HexTri>::iterator hi = m_triangles.begin();
+		 hi != m_triangles.end(); hi++ )
 	{
 		glBegin( GL_LINE_LOOP );
 		Imath::V3f pA, pB, pC;
@@ -482,13 +482,13 @@ void HexPlanet::getPolygon( uint32_t tileIndex, std::vector<Imath::V3f> &poly, f
 	// sort edges to make a good polygon
 	// ---first assign angles around center
 	std::vector<HexTri*> triangles;
-	const Imath::V3f firstPos = m_hexdual[neighbors[0]].getCenter(m_hexes);
+	const Imath::V3f firstPos = m_triangles[neighbors[0]].getCenter(m_hexes);
 
 	for ( std::vector<uint32_t>::const_iterator i = neighbors.begin(); i != neighbors.end(); ++i )
 	{
-		triangles.push_back(&m_hexdual[*i]);
+		triangles.push_back(&m_triangles[*i]);
 		Imath::V3f v1 = firstPos - m_hexes[tileIndex].m_vertPos;
-		Imath::V3f nrm = m_hexdual[*i].getCenter(m_hexes);
+		Imath::V3f nrm = m_triangles[*i].getCenter(m_hexes);
 		Imath::V3f v2 = nrm - m_hexes[tileIndex].m_vertPos;
 		nrm.normalize();
 		v1.normalize();
@@ -498,7 +498,7 @@ void HexPlanet::getPolygon( uint32_t tileIndex, std::vector<Imath::V3f> &poly, f
 		const float dir = nrm.dot( v1.cross( v2 ) );
 		if (dir < 0.0f) ang = M_PI + (M_PI - ang);
 
-		m_hexdual[*i].m_tmp.m_angle = ang;
+		m_triangles[*i].m_tmp.m_angle = ang;
 	}
 	std::sort( triangles.begin(), triangles.end(), _cmpAngle );
 
@@ -522,11 +522,11 @@ void HexPlanet::getNeighbors( uint32_t tileNdx, std::vector<uint32_t> &nbrs ) co
 	std::set<uint32_t> candidates;
 
 	// find neighbors
-	for ( size_t ti = 0; ti != m_hexdual.size(); ++ti)
+	for ( size_t ti = 0; ti != m_triangles.size(); ++ti)
 	{
-		if (m_hexdual[ti].m_hexA == tileNdx ||
-			 m_hexdual[ti].m_hexB == tileNdx ||
-			 m_hexdual[ti].m_hexC == tileNdx)
+		if (m_triangles[ti].m_hexA == tileNdx ||
+		    m_triangles[ti].m_hexB == tileNdx ||
+		    m_triangles[ti].m_hexC == tileNdx)
 		{
 			candidates.insert(ti);
 		}

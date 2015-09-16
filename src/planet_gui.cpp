@@ -388,7 +388,7 @@ void PlanetGui::redraw()
 	if (m_mouseOnSurface)
 	{
 		std::vector<Imath::V3f> cursorPoly;
-		if (m_cursorHex < m_planet->m_hexes.size() )
+		if (m_cursorHex < m_planet->getNumHexes() )
 		{
 			m_planet->getPolygon( m_cursorHex, cursorPoly );
 
@@ -447,7 +447,7 @@ void PlanetGui::redraw()
 
 		glPushMatrix();	
 		glTranslated( 20, pixelRow, 0 );
-		gfDrawStringFmt( "# of Triangles: %d\n", m_planet->m_hexdual.size() );
+		gfDrawStringFmt( "# of Triangles: %d\n", m_planet->numTriangles() );
 		glPopMatrix();	
 		pixelRow -= ROW_SIZE;
 
