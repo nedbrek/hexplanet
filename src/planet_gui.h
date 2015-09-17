@@ -48,6 +48,8 @@ protected: // methods
 	void drawAtmosphere();
 	void drawStarfield();
 
+	void drawHexes(const MapData<uint8_t> &terrainData);
+
 protected: // data
 	// font stuff
 	GLuint m_glFontTexId_console;

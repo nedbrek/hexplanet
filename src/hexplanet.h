@@ -68,12 +68,6 @@ public:
 
 	void repairNormals();
 
-	/**
-	 * @param colorTextureBar true if data is colors, false if data is texture indexes
-	 * @param terrainData data to use for hex terrain
-	 */
-	void draw( bool colorTextureBar, const MapData<uint8_t> &terrainData );
-
 	size_t getNumHexes() const;
 	size_t numTriangles() const { return m_triangles.size(); }
 
@@ -96,6 +90,7 @@ public:
 	size_t getHexIndexFromPoint( Imath::V3f surfPos );
 
 	const HexTri& triangle(size_t triIndex) const { return m_triangles[triIndex]; }
+	const HexTile& hex(size_t hexIndex) const { return m_hexes[hexIndex]; }
 
 	void projectToSphere();
 
