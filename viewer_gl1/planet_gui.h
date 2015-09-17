@@ -1,7 +1,7 @@
 #ifndef PLANET_GUI_H
 #define PLANET_GUI_H
 
-#include "hexplanet.h"
+#include "../src/hexplanet.h"
 #include "load_texture.h"
 
 class GLUI;

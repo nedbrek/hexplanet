@@ -1,12 +1,6 @@
-/src/*.o
-/src/*.d
-/utils/*.o
-/utils/*.d
-/test/*.o
-/test/*.d
-/hex_planet.exe
+*.o
+*.d
+*.exe
 /libHexPlanet.a
-/test/loadTest.exe
-/test/writeData.exe
 *.obj
 /test/*.bin

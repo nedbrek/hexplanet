@@ -1,5 +1,5 @@
 #include "planet_gui.h"
-#include "map_data.h"
+#include "../src/map_data.h"
 #include "gamefontgl.h"
 #include "../utils/neighbors.h"
 #include <OpenEXR/ImathVec.h>
