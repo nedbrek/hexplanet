@@ -41,7 +41,7 @@ PlanetGui::PlanetGui( int gluiMainWin ) :
 	m_terrWatery( 0.5f ),
 	m_tileData(new MapData<uint8_t>),
 	m_plateData(new MapData<uint8_t>),
-	m_altitude(-2500.f)
+	m_altitude(-2.500f)
 {
 	// singleton
 	assert( s_theGUI == NULL );
@@ -116,7 +116,8 @@ void PlanetGui::buildInterface()
 	rotSun->set_spin( 1.0 );	
 
 	m_glui->add_column_to_panel( rot_panel, false );
-	m_glui->add_translation_to_panel( rot_panel, "Altitude", GLUI_TRANSLATION_Z, &m_altitude);
+	GLUI_Translation *altSlider = m_glui->add_translation_to_panel( rot_panel, "Altitude", GLUI_TRANSLATION_Z, &m_altitude);
+	altSlider->set_speed(.001);
 
 	m_glui->add_column_to_panel( panel, false );
 	// Planet Construction Panel
@@ -491,7 +492,7 @@ void PlanetGui::redraw()
 		glColor4f( 0.5f, 0.5f, 0.5f, 0.2f );
 		glEnable( GL_BLEND );
 		glBlendFunc( GL_ONE, GL_ONE );		
-		glutSolidSphere( 1020.0f, 30, 30 );
+		glutSolidSphere( 1.020f, 30, 30 );
 		
 
 		// draw again at lower opacity to back off
@@ -637,11 +638,11 @@ void PlanetGui::drawAtmosphere()
 		Imath::V3f p( cos(t), sin(t), 0.0f );
 		glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
 		glNormal3f( p[0], p[1], 0.0 );
-		glVertex3f( p[0]*1000.0f, p[1]*1000.0f, 0.0f );
+		glVertex3f( p[0], p[1], 0.0f );
 
 		glColor4f( 0.0f, 0.5f, 0.9f, 0.1f );
 		glNormal3f( 0.0, 0.0, -1.0 );
-		glVertex3f( p[0]*1300.0f, p[1]*1300.0f, 0.0f );
+		glVertex3f( p[0]*1.300f, p[1]*1.300f, 0.0f );
 	}
 	glEnd();
 
@@ -668,8 +669,8 @@ void PlanetGui::drawStarfield()
 
 		Star s;
 		spos = spos.normalize();		
-		s.p = spos * 3000.0f;
-		s.radius = 500.0f + ((float)rand() / (float)RAND_MAX) * 500.0f;
+		s.p = spos * 3.0f;
+		s.radius = .5f + ((float)rand() / (float)RAND_MAX) * .5f;
 		s.index = rand() % 8;
 		m_stars.push_back( s );		
 	}
@@ -739,7 +740,7 @@ void PlanetGui::updateCursorPos()
 				  &x, &y, &z );
 	rayP = Imath::V3f( x, y, z );
 	
-	gluUnProject( m_mouseX, m_viewport[3]-m_mouseY, 0.01,
+	gluUnProject( m_mouseX, m_viewport[3]-m_mouseY, 0.1,
 				  m_modelView, m_projection, m_viewport,
 				  &x, &y, &z );
 	rayDir = Imath::V3f( x, y, z );

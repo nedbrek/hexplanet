@@ -75,7 +75,7 @@ public:
 
 	// returns the polygon representation of this
 	// hex. Usually 6-sided but could be a pentagon	
-	void getPolygon( uint32_t tileIndex, std::vector<Imath::V3f> &poly, float offset=0.0f );
+	void getPolygon(uint32_t tileIndex, std::vector<Imath::V3f> &poly);
 
 	// returns the indices of the neighbors of this tile
 	// Usually 6, could be 5. These aren't in any order
@@ -103,8 +103,6 @@ protected:
 	// data
 	std::vector<HexTile> m_hexes;
 	std::vector<HexTri> m_triangles;
-
-	static float kPlanetRadius;
 };
 
 #endif

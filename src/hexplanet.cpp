@@ -7,8 +7,6 @@
 #include <string>
 #include <vector>
 
-float HexPlanet::kPlanetRadius = 1000.0f;
-
 HexTile::HexTile( Imath::V3f p ) :
 	m_vertPos( p )
 {
@@ -298,7 +296,6 @@ void HexPlanet::projectToSphere()
 	{
 		Imath::V3f p = (*ti).m_vertPos;
 		p.normalize();
-		p *= kPlanetRadius;
 		(*ti).m_vertPos = p;
 	}
 }
@@ -316,14 +313,14 @@ size_t HexPlanet::getHexIndexFromPoint( Imath::V3f surfPos )
 	// normalize
 	Imath::V3f p = surfPos;
 	p = p.normalize();
-	best_dot = acos( m_hexes[0].m_vertPos.dot( p ) / kPlanetRadius );
+	best_dot = acos( m_hexes[0].m_vertPos.dot( p ) );
 
 
 	// clever cheat -- just use the dot product to find the 
 	// smallest angle -- and thus the containing hex
 	for (size_t ndx = 1; ndx < m_hexes.size(); ndx++)
 	{
-		float d = acos( m_hexes[ndx].m_vertPos.dot( p ) / kPlanetRadius );
+		float d = acos( m_hexes[ndx].m_vertPos.dot( p ) );
 		if (d < best_dot)
 		{
 			best_hex = ndx;
@@ -342,7 +339,7 @@ bool _cmpAngle( HexTri *a, HexTri *b )
 
 // returns the polygon representation of this
 // hex. Usually 6-sided but could be a pentagon	
-void HexPlanet::getPolygon( uint32_t tileIndex, std::vector<Imath::V3f> &poly, float offset )
+void HexPlanet::getPolygon(uint32_t tileIndex, std::vector<Imath::V3f> &poly)
 {
 	// clear list
 	poly.erase( poly.begin(), poly.end() );
@@ -379,7 +376,6 @@ void HexPlanet::getPolygon( uint32_t tileIndex, std::vector<Imath::V3f> &poly, f
 	{
 		Imath::V3f p = (**ti).getCenter( m_hexes );
 		p.normalize();
-		p *= kPlanetRadius + offset;
 		poly.push_back( p );
 	}
 }
@@ -413,7 +409,7 @@ bool HexPlanet::rayHitPlanet( Imath::V3f p, Imath::V3f dir, Imath::V3f &result )
 	float a,b,c,d;
 	a = dir.dot(dir);
 	b = (2.0f*dir).dot(p);
-	c = p.dot(p) - (kPlanetRadius*kPlanetRadius);
+	c = p.dot(p) - 1;
 	d = b*b - 4.0f*a*c;
 	if (d <=0 ) return false;
 	result = p + ((-b - sqrtf(d)) / 2.0f*a)*dir;

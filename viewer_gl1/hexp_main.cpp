@@ -16,7 +16,7 @@ void glut_Display(void)
 {  
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(50.0f, g_aspect, 1.0f, 5000.0f);
+  gluPerspective(50.0f, g_aspect, .0001, 5000.0f);
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
