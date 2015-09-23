@@ -3,7 +3,7 @@ CXXFLAGS += -MP -MMD -Wall -g -O3
 LDFLAGS += -Wall
 LIBS := -lglfw -lGLEW -lGL ../libHexPlanet.a
 
-CXXSRC := glfwViewer.cpp
+CXXSRC := glfwViewer.cpp shader.cpp
 
 BIN := glfwViewer.exe
 OBJ := $(CXXSRC:.cpp=.o)

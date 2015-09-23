@@ -1,6 +1,9 @@
 #include <GL/glew.h> // must be before gl
+#include "shader.h"
 #include "../src/hexplanet.h"
 #include <GL/glfw.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <fstream>
 #include <iostream>
 
@@ -44,13 +47,48 @@ int main(int argc, char **argv)
 {
 	initGraphics();
 
+	const float fov = 90;
+	const float aspectRatio = 16/9.;
+	const float nearClipPlane = .1;
+	const float farClipPlane = 100;
+	glLoadMatrixf(glm::value_ptr(glm::perspective(fov, aspectRatio, nearClipPlane, farClipPlane)));
+	glm::vec3 position(0, 0, -1);
+	glm::vec3 targetPosition(0, 0, 1);
+	glm::vec3 headVec(0, 1, 0);
+	glMultMatrixf(glm::value_ptr(glm::lookAt(position, targetPosition, headVec)));
+
+	const GLuint prgId = makeShaderProgram("vert.glsl", "frag.glsl");
+	if (!prgId)
+	{
+		std::cout << "Failed to load shaders." << std::endl;
+		return 1;
+	}
+
 	HexPlanet p;
 	std::ifstream is("../test/sphere9.fixed.obj");
 	p.read(is);
 
+	float vertices[] = {
+	     0.0f,  0.5f, 0,
+	     0.5f, -0.5f, 0,
+	    -0.5f, -0.5f, 0
+	};
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glUseProgram(prgId);
+
+	const GLint posAttrib = glGetAttribLocation(prgId, "position");
+	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(posAttrib);
+
 	bool running = true;
 	while (running)
 	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glfwSwapBuffers();
 		running = !glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED);
 	}
