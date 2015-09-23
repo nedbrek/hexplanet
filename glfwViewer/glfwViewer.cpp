@@ -70,6 +70,10 @@ int main(int argc, char **argv)
 	std::ifstream is("../test/sphere9.fixed.obj");
 	p.read(is);
 
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
 	float vertices[] = {
 	     0.0f,  0.5f, 0,
 	     0.5f, -0.5f, 0,
