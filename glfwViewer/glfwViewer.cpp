@@ -74,15 +74,31 @@ int main(int argc, char **argv)
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
+	glUseProgram(prgId);
+
 	float vertices[] = {
 	     0.0f,  0.5f, 0,
 	     0.5f, -0.5f, 0,
 	    -0.5f, -0.5f, 0
 	};
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	GLuint vertexVbo;
+	glGenBuffers(1, &vertexVbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexVbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	const GLint posAttrib = glGetAttribLocation(prgId, "position");
+	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(posAttrib);
+
+	uint8_t terrainData[9] = {4, 2, 1, 0, 0, 0, 0, 0, 0};
+	GLuint terrainVbo;
+	glGenBuffers(1, &terrainVbo);
+	glBindBuffer(GL_ARRAY_BUFFER, terrainVbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(terrainData), terrainData, GL_STATIC_DRAW);
+
+	const GLint tdAttrib = glGetAttribLocation(prgId, "terrainData");
+	glVertexAttribIPointer(tdAttrib, 3, GL_UNSIGNED_BYTE, 0, 0);
+	glEnableVertexAttribArray(tdAttrib);
 
 	GLuint elements[] = {
 	    0, 1, 2
@@ -91,12 +107,6 @@ int main(int argc, char **argv)
 	glGenBuffers(1, &ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
-
-	glUseProgram(prgId);
-
-	const GLint posAttrib = glGetAttribLocation(prgId, "position");
-	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(posAttrib);
 
 	bool running = true;
 	while (running)
