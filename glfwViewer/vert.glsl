@@ -2,6 +2,7 @@
 
 in vec3 position;
 in uvec3 terrainData;
+
 flat out uvec3 fragTerrainData;
 
 void main()

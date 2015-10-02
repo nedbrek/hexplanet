@@ -90,7 +90,7 @@ int main(int argc, char **argv)
 	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(posAttrib);
 
-	uint8_t terrainData[9] = {4, 2, 1, 0, 0, 0, 0, 0, 0};
+	uint8_t terrainData[9] = {4, 4, 4, 4, 4, 4, 2, 3, 1};
 	GLuint terrainVbo;
 	glGenBuffers(1, &terrainVbo);
 	glBindBuffer(GL_ARRAY_BUFFER, terrainVbo);
