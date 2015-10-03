@@ -81,14 +81,8 @@ int main(int argc, char **argv)
 	     0.5f, -0.5f, 0,
 	    -0.5f, -0.5f, 0
 	};
-	GLuint vertexVbo;
-	glGenBuffers(1, &vertexVbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexVbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	const GLint posAttrib = glGetAttribLocation(prgId, "position");
-	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(posAttrib);
+	glUniform3fv(glGetUniformLocation(prgId, "positionData"), sizeof(vertices)/sizeof(vertices[0]), &vertices[0]);
 
 	uint8_t terrainData[9] = {4, 4, 4, 4, 4, 4, 2, 3, 1};
 	GLuint terrainVbo;
@@ -105,14 +99,18 @@ int main(int argc, char **argv)
 	};
 	GLuint ebo;
 	glGenBuffers(1, &ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
+
+	const GLint idxAttrib = glGetAttribLocation(prgId, "index");
+	glVertexAttribIPointer(idxAttrib, 1, GL_INT, 0, 0);
+	glEnableVertexAttribArray(idxAttrib);
 
 	bool running = true;
 	while (running)
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glfwSwapBuffers();
 		running = !glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED);
 	}
