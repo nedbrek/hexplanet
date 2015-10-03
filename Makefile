@@ -23,7 +23,7 @@ OBJ := $(V1OBJ) $(LIBOBJ)
 BIN := $(V1BIN) $(LIB)
 
 .PHONY: all
-all: $(V1BIN) libHexPlanet.a
+all: libHexPlanet.a
 
 -include $(LIBDEP) $(V1DEP)
 
