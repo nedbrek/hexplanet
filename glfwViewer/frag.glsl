@@ -26,35 +26,19 @@ void main()
 {
 	gl_FragColor.a = 1;
 
-	float d0 = distance(vec2(0, 0.5), texCoord);
-	float d1 = distance(vec2(0.5, -0.5), texCoord);
-	float d2 = distance(vec2(-0.5, -0.5), texCoord);
+	float d0 = distance(vec2(0.5, 1.0), texCoord);
+	float d1 = distance(vec2(1.0, 0.0), texCoord);
+	float d2 = distance(vec2(0.0, 0.0), texCoord);
 
-	if (d0 < d1)
-	{
-		if (d0 < d2)
-		{
-			// d0 is lowest
-			gl_FragColor.rgb = colorForTerrain(fragTerrainData[0]);
-		}
-		else
-		{
-			// d2 is lowest
-			gl_FragColor.rgb = colorForTerrain(fragTerrainData[2]);
-		}
-	}
-	else
-	{
-		if (d1 < d2)
-		{
-			// d1 is lowest
-			gl_FragColor.rgb = colorForTerrain(fragTerrainData[1]);
-		}
-		else
-		{
-			// d2 is lowest
-			gl_FragColor.rgb = colorForTerrain(fragTerrainData[2]);
-		}
-	}
+	int terrainIndex =
+	    (d0 < d1) ?
+	        (
+	            (d0 < d2) ? 0 : 2
+	        ) :
+	        (
+	            (d1 < d2) ? 1 : 2
+	        );
+
+	gl_FragColor.rgb = colorForTerrain(fragTerrainData[terrainIndex]);
 }
 
