@@ -82,7 +82,19 @@ int main(int argc, char **argv)
 	    -0.5f, -0.5f, 0
 	};
 
-	glUniform3fv(glGetUniformLocation(prgId, "positionData"), sizeof(vertices)/sizeof(vertices[0]), &vertices[0]);
+	GLuint textureId;
+	glGenTextures(1, &textureId);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_1D, textureId);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	// try and turn off mipmapping
+	glSamplerParameterf(textureId, GL_TEXTURE_MIN_LOD, 0);
+	glSamplerParameterf(textureId, GL_TEXTURE_MAX_LOD, 0);
+	glSamplerParameterf(textureId, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glSamplerParameterf(textureId, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA32F, 3, 0, GL_RGB, GL_FLOAT, &vertices[0]);
+	glGenerateMipmap(GL_TEXTURE_1D); // this shouldn't be needed, but it is
+	glUniform1i(glGetUniformLocation(prgId, "positionData"), 0);
 
 	uint8_t terrainData[9] = {4, 4, 4, 4, 4, 4, 2, 3, 1};
 	GLuint terrainVbo;

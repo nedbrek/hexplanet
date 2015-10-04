@@ -1,6 +1,6 @@
 #version 130
 
-uniform vec3 positionData[3];
+uniform sampler1D positionData;
 
 in int index;
 in uvec3 terrainData;
@@ -32,7 +32,7 @@ void main()
 		texCoord = vec2(0, 0);
 	}
 
-	vec4 position = vec4(positionData[index], 1);
+	vec4 position = texelFetch(positionData, index, 0);
 	gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * position;
 }
 
