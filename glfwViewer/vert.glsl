@@ -21,11 +21,11 @@ void main()
 		break;
 
 	case 1:
-		texCoord = vec2(0, 0);
+		texCoord = vec2(1, 0);
 		break;
 
 	case 2:
-		texCoord = vec2(1, 0);
+		texCoord = vec2(0, 0);
 		break;
 
 	default:

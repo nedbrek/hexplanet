@@ -1,6 +1,7 @@
 #include <GL/glew.h> // must be before gl
 #include "shader.h"
 #include "../src/hexplanet.h"
+#include "../src/map_data.h"
 #include <GL/glfw.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -53,7 +54,7 @@ int main(int argc, char **argv)
 	const float farClipPlane = 100;
 	glMatrixMode(GL_PROJECTION);
 	glLoadMatrixf(glm::value_ptr(glm::perspective(fov, aspectRatio, nearClipPlane, farClipPlane)));
-	glm::vec3 position(0, 0, -1);
+	glm::vec3 position(0, 0, -2.5);
 	glm::vec3 targetPosition(0, 0, 1);
 	glm::vec3 headVec(0, 1, 0);
 	glMatrixMode(GL_MODELVIEW);
@@ -67,7 +68,7 @@ int main(int argc, char **argv)
 	}
 
 	HexPlanet p;
-	std::ifstream is("../test/sphere9.fixed.obj");
+	std::ifstream is("../test/sphere6.fixed.obj");
 	p.read(is);
 
 	GLuint vao;
@@ -76,43 +77,57 @@ int main(int argc, char **argv)
 
 	glUseProgram(prgId);
 
-	float vertices[] = {
-	     0.0f,  0.5f, 0,
-	     0.5f, -0.5f, 0,
-	    -0.5f, -0.5f, 0
-	};
+	const size_t numVerts = p.getNumHexes();
 
 	GLuint textureId;
 	glGenTextures(1, &textureId);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_1D, textureId);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	// try and turn off mipmapping
-	glSamplerParameterf(textureId, GL_TEXTURE_MIN_LOD, 0);
-	glSamplerParameterf(textureId, GL_TEXTURE_MAX_LOD, 0);
-	glSamplerParameterf(textureId, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glSamplerParameterf(textureId, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA32F, 3, 0, GL_RGB, GL_FLOAT, &vertices[0]);
-	glGenerateMipmap(GL_TEXTURE_1D); // this shouldn't be needed, but it is
+	// turn off mipmapping
+	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MAX_LEVEL, 0);
+	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB32F, numVerts, 0, GL_RGB, GL_FLOAT, &p.hex(0).m_vertPos);
 	glUniform1i(glGetUniformLocation(prgId, "positionData"), 0);
 
-	uint8_t terrainData[9] = {4, 4, 4, 4, 4, 4, 2, 3, 1};
+	FILE *terrainFile = fopen("../test/terrain6.bin", "rb");
+	MapData<uint8_t> terrainFileData;
+	terrainFileData.read(terrainFile);
+
+	std::vector<uint32_t> indexes;
+	std::vector<uint8_t> terrainData;
+	for (size_t i = 0; i < p.numTriangles(); ++i)
+	{
+		const HexTri &t = p.triangle(i);
+		assert(0 <= t.m_hexA && t.m_hexA < p.getNumHexes());
+		indexes.push_back(t.m_hexA);
+		indexes.push_back(t.m_hexB);
+		indexes.push_back(t.m_hexC);
+
+		terrainData.push_back(terrainFileData[t.m_hexA]);
+		terrainData.push_back(terrainFileData[t.m_hexB]);
+		terrainData.push_back(terrainFileData[t.m_hexC]);
+
+		terrainData.push_back(terrainFileData[t.m_hexA]);
+		terrainData.push_back(terrainFileData[t.m_hexB]);
+		terrainData.push_back(terrainFileData[t.m_hexC]);
+
+		terrainData.push_back(terrainFileData[t.m_hexA]);
+		terrainData.push_back(terrainFileData[t.m_hexB]);
+		terrainData.push_back(terrainFileData[t.m_hexC]);
+	}
 	GLuint terrainVbo;
 	glGenBuffers(1, &terrainVbo);
 	glBindBuffer(GL_ARRAY_BUFFER, terrainVbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(terrainData), terrainData, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, terrainData.size(), &terrainData[0], GL_STATIC_DRAW);
 
 	const GLint tdAttrib = glGetAttribLocation(prgId, "terrainData");
 	glVertexAttribIPointer(tdAttrib, 3, GL_UNSIGNED_BYTE, 0, 0);
 	glEnableVertexAttribArray(tdAttrib);
 
-	GLuint elements[] = {
-	    0, 1, 2
-	};
 	GLuint ebo;
 	glGenBuffers(1, &ebo);
 	glBindBuffer(GL_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(uint32_t)*indexes.size(), &indexes[0], GL_STATIC_DRAW);
 
 	const GLint idxAttrib = glGetAttribLocation(prgId, "index");
 	glVertexAttribIPointer(idxAttrib, 1, GL_INT, 0, 0);
@@ -122,7 +137,7 @@ int main(int argc, char **argv)
 	while (running)
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLES, 0, indexes.size());
 		glfwSwapBuffers();
 		running = !glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED);
 	}
