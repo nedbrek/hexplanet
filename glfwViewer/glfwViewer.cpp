@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 	}
 
 	HexPlanet p;
-	std::ifstream is("../test/sphere6.fixed.obj");
+	std::ifstream is("../test/sphere7.fixed.obj");
 	p.read(is);
 
 	GLuint vao;
@@ -77,31 +77,40 @@ int main(int argc, char **argv)
 
 	glUseProgram(prgId);
 
-	const size_t numVerts = p.getNumHexes();
+	GLuint positionVbo;
+	glGenBuffers(1, &positionVbo);
+	glBindBuffer(GL_ARRAY_BUFFER, positionVbo);
+	glBufferData(GL_ARRAY_BUFFER, p.numTriangles()*3*3*4, NULL, GL_STATIC_DRAW);
+	void *positionBufferV = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+	float *positionBuffer = static_cast<float*>(positionBufferV);
+	assert(positionBuffer);
 
-	GLuint textureId;
-	glGenTextures(1, &textureId);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_1D, textureId);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	// turn off mipmapping
-	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MAX_LEVEL, 0);
-	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB32F, numVerts, 0, GL_RGB, GL_FLOAT, &p.hex(0).m_vertPos);
-	glUniform1i(glGetUniformLocation(prgId, "positionData"), 0);
-
-	FILE *terrainFile = fopen("../test/terrain6.bin", "rb");
+	FILE *terrainFile = fopen("../test/terrain7.bin", "rb");
 	MapData<uint8_t> terrainFileData;
-	terrainFileData.read(terrainFile);
+	if (!terrainFile || terrainFileData.read(terrainFile))
+	{
+		printf("Failed to read terrain data\n");
+		return 1;
+	}
 
-	std::vector<uint32_t> indexes;
 	std::vector<uint8_t> terrainData;
 	for (size_t i = 0; i < p.numTriangles(); ++i)
 	{
 		const HexTri &t = p.triangle(i);
 		assert(0 <= t.m_hexA && t.m_hexA < p.getNumHexes());
-		indexes.push_back(t.m_hexA);
-		indexes.push_back(t.m_hexB);
-		indexes.push_back(t.m_hexC);
+
+		// copy in position data (we're doing the indirection here)
+		*positionBuffer = p.hex(t.m_hexA).m_vertPos.x; ++positionBuffer;
+		*positionBuffer = p.hex(t.m_hexA).m_vertPos.y; ++positionBuffer;
+		*positionBuffer = p.hex(t.m_hexA).m_vertPos.z; ++positionBuffer;
+
+		*positionBuffer = p.hex(t.m_hexB).m_vertPos.x; ++positionBuffer;
+		*positionBuffer = p.hex(t.m_hexB).m_vertPos.y; ++positionBuffer;
+		*positionBuffer = p.hex(t.m_hexB).m_vertPos.z; ++positionBuffer;
+
+		*positionBuffer = p.hex(t.m_hexC).m_vertPos.x; ++positionBuffer;
+		*positionBuffer = p.hex(t.m_hexC).m_vertPos.y; ++positionBuffer;
+		*positionBuffer = p.hex(t.m_hexC).m_vertPos.z; ++positionBuffer;
 
 		terrainData.push_back(terrainFileData[t.m_hexA]);
 		terrainData.push_back(terrainFileData[t.m_hexB]);
@@ -115,6 +124,12 @@ int main(int argc, char **argv)
 		terrainData.push_back(terrainFileData[t.m_hexB]);
 		terrainData.push_back(terrainFileData[t.m_hexC]);
 	}
+	glUnmapBuffer(GL_ARRAY_BUFFER);
+
+	const GLint posAttrib = glGetAttribLocation(prgId, "position");
+	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(posAttrib);
+
 	GLuint terrainVbo;
 	glGenBuffers(1, &terrainVbo);
 	glBindBuffer(GL_ARRAY_BUFFER, terrainVbo);
@@ -124,20 +139,11 @@ int main(int argc, char **argv)
 	glVertexAttribIPointer(tdAttrib, 3, GL_UNSIGNED_BYTE, 0, 0);
 	glEnableVertexAttribArray(tdAttrib);
 
-	GLuint ebo;
-	glGenBuffers(1, &ebo);
-	glBindBuffer(GL_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(uint32_t)*indexes.size(), &indexes[0], GL_STATIC_DRAW);
-
-	const GLint idxAttrib = glGetAttribLocation(prgId, "index");
-	glVertexAttribIPointer(idxAttrib, 1, GL_INT, 0, 0);
-	glEnableVertexAttribArray(idxAttrib);
-
 	bool running = true;
 	while (running)
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glDrawArrays(GL_TRIANGLES, 0, indexes.size());
+		glDrawArrays(GL_TRIANGLES, 0, p.numTriangles()*3);
 		glfwSwapBuffers();
 		running = !glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED);
 	}
