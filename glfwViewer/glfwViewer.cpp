@@ -1,4 +1,5 @@
 #include <GL/glew.h> // must be before gl
+#include "camera.h"
 #include "shader.h"
 #include "../src/hexplanet.h"
 #include "../src/map_data.h"
@@ -48,17 +49,13 @@ int main(int argc, char **argv)
 {
 	initGraphics();
 
-	const float fov = 90;
-	const float aspectRatio = 16/9.;
-	const float nearClipPlane = .1;
-	const float farClipPlane = 100;
+	Camera camera;
+
 	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(glm::value_ptr(glm::perspective(fov, aspectRatio, nearClipPlane, farClipPlane)));
-	glm::vec3 position(0, 0, -2.5);
-	glm::vec3 targetPosition(0, 0, 1);
-	glm::vec3 headVec(0, 1, 0);
+	glLoadMatrixf(glm::value_ptr(camera.projection()));
+
 	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(glm::value_ptr(glm::lookAt(position, targetPosition, headVec)));
+	glLoadMatrixf(glm::value_ptr(camera.view()));
 
 	const GLuint prgId = makeShaderProgram("vert.glsl", "frag.glsl");
 	if (!prgId)
