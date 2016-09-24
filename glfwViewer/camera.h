@@ -7,6 +7,7 @@
 class Camera
 {
 public:
+	/// constructor
 	Camera();
 
 	///@return matrix for 2d projection to window space
@@ -14,6 +15,12 @@ public:
 
 	///@return matrix for projection to view space
 	glm::mat4 view() const;
+
+	///@return camera position (world space)
+	glm::vec3 position() const;
+
+	/// set camera position (world space)
+	void setPosition(const glm::vec3 &pos);
 
 private:
 	glm::vec3 pos_; ///< position in world space

@@ -22,3 +22,13 @@ glm::mat4 Camera::view() const
 	return glm::lookAt(pos_, tPos_, headVec_);
 }
 
+glm::vec3 Camera::position() const
+{
+	return pos_;
+}
+
+void Camera::setPosition(const glm::vec3 &pos)
+{
+	pos_ = pos;
+}
+

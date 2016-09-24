@@ -1,4 +1,5 @@
 #include <GL/glew.h> // must be before gl
+#include "controls.h"
 #include "camera.h"
 #include "shader.h"
 #include "../src/hexplanet.h"
@@ -48,14 +49,6 @@ int initGraphics()
 int main(int argc, char **argv)
 {
 	initGraphics();
-
-	Camera camera;
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(glm::value_ptr(camera.projection()));
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(glm::value_ptr(camera.view()));
 
 	const GLuint prgId = makeShaderProgram("vert.glsl", "frag.glsl");
 	if (!prgId)
@@ -136,10 +129,18 @@ int main(int argc, char **argv)
 	glVertexAttribIPointer(tdAttrib, 3, GL_UNSIGNED_BYTE, 0, 0);
 	glEnableVertexAttribArray(tdAttrib);
 
+	Camera camera;
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf(glm::value_ptr(camera.projection()));
+
+	Controls ctl;
+
 	bool running = true;
 	while (running)
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		ctl.beginFrame(&camera);
+
 		glDrawArrays(GL_TRIANGLES, 0, p.numTriangles()*3);
 		glfwSwapBuffers();
 		running = !glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED);
