@@ -1,6 +1,7 @@
 #include "controls.h"
 #include "camera.h"
 #include <GL/glfw.h>
+#define GLM_FORCE_RADIANS
 #include <glm/gtc/type_ptr.hpp>
 
 namespace

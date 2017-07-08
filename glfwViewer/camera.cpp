@@ -1,11 +1,14 @@
 #include "camera.h"
+#define GLM_FORCE_RADIANS
 #include <glm/gtc/matrix_transform.hpp>
+
+const double PI = std::atan(1)*4;
 
 Camera::Camera()
 : pos_(0, 0, -2.5)
 , tPos_(0, 0, 1)
 , headVec_(0, 1, 0)
-, fov_(90)
+, fov_(PI/2)
 , aspectRatio_(16/9.)
 , nearClip_(.1)
 , farClip_(100)
