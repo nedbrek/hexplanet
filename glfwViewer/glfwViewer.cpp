@@ -1,15 +1,23 @@
 #include <GL/glew.h> // must be before gl
 #include "controls.h"
 #include "camera.h"
+#include "hud.h"
 #include "shader.h"
 #include "../src/hexplanet.h"
 #include "../src/map_data.h"
+#include <FTGL/ftgl.h>
 #include <GL/glfw.h>
+#include <fstream>
+#include <iostream>
+
 #define GLM_FORCE_RADIANS
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <fstream>
-#include <iostream>
+
+std::ostream& operator<<(std::ostream &os, const glm::vec3 &v)
+{
+	return os << '(' << v[0] << ',' << v[1] << ',' << v[2] << ')';
+}
 
 int initGraphics()
 {
@@ -185,6 +193,12 @@ int main(int argc, char **argv)
 
 	Controls ctl;
 
+	FTFont *font = new FTGLPixmapFont("/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf");
+	font->FaceSize(12);
+
+	Hud hud;
+	const size_t varPos = hud.addVarLine("Position: ", "-");
+
 	bool showTerrain = true;
 	bool running = true;
 	while (running)
@@ -204,6 +218,9 @@ int main(int argc, char **argv)
 
 		ctl.beginFrame(&camera);
 
+		hud.updateVarLine(varPos, camera.position());
+		hud.render(*font);
+
 		glDrawArrays(GL_TRIANGLES, 0, p.numTriangles()*3);
 
 		glfwSwapBuffers();
@@ -214,6 +231,7 @@ int main(int argc, char **argv)
 		running = !glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED);
 	}
 
+	delete font;
 	glfwTerminate();
 	return 0;
 }

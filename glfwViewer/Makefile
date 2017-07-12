@@ -1,9 +1,9 @@
 CXX ?= g++
-CXXFLAGS += -MP -MMD -Wall -g -O3
+CXXFLAGS += -MP -MMD -Wall -g -O3 $(shell freetype-config --cflags)
 LDFLAGS += -Wall
-LIBS := -lglfw -lGLEW -lGL ../libHexPlanet.a
+LIBS := -lglfw -lGLEW -lGL ../libHexPlanet.a -lftgl
 
-CXXSRC := glfwViewer.cpp camera.cpp controls.cpp shader.cpp
+CXXSRC := glfwViewer.cpp camera.cpp controls.cpp shader.cpp hud.cpp
 
 BIN := glfwViewer.exe
 OBJ := $(CXXSRC:.cpp=.o)

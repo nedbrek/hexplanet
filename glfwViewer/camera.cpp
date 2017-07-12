@@ -25,6 +25,11 @@ glm::mat4 Camera::view() const
 	return glm::lookAt(pos_, tPos_, headVec_);
 }
 
+glm::vec3 Camera::targetPosition() const
+{
+	return tPos_;
+}
+
 glm::vec3 Camera::position() const
 {
 	return pos_;
