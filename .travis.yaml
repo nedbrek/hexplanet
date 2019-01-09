@@ -1,0 +1,21 @@
+language: cpp
+
+compiler: gcc
+
+sudo: false
+
+addons:
+  apt:
+    packages:
+      - g++-4.8
+      - libglew-dev
+
+install:
+  - make
+  - cd test
+  - wget https://github.com/nedbrek/data-hexplanet/archive/98c459964a84bb6e664e3421136b24b60bd55480.tar.gz
+  - tar xfz 98c459964a84bb6e664e3421136b24b60bd55480.tar.gz --strip-components 1
+
+script:
+  - make test
+
