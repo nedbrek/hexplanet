@@ -1,6 +1,6 @@
 #include "controls.h"
 #include "camera.h"
-#include <GL/glfw.h>
+#include <GLFW/glfw3.h>
 #define GLM_FORCE_RADIANS
 #include <glm/gtc/type_ptr.hpp>
 
@@ -15,18 +15,18 @@ Controls::Controls()
 {
 }
 
-void Controls::beginFrame(Camera *cp)
+void Controls::beginFrame(GLFWwindow *main_window, Camera *cp)
 {
 	const double cur_time = glfwGetTime();
 	const double delta_t = cur_time - lastTime_;
 
 	// update camera position
 	glm::vec3 position = cp->position();
-	if (glfwGetKey(GLFW_KEY_PAGEUP) == GLFW_PRESS)
+	if (glfwGetKey(main_window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
 	{
 		position[2] += delta_t * speed;
 	}
-	if (glfwGetKey(GLFW_KEY_PAGEDOWN) == GLFW_PRESS)
+	if (glfwGetKey(main_window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
 	{
 		position[2] -= delta_t * speed;
 	}

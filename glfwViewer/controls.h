@@ -1,6 +1,7 @@
 #ifndef CONTROLS_H
 #define CONTROLS_H
 
+struct GLFWwindow;
 class Camera;
 
 class Controls
@@ -8,7 +9,7 @@ class Controls
 public:
 	Controls();
 
-	void beginFrame(Camera *cp);
+	void beginFrame(GLFWwindow *main_window, Camera *cp);
 
 private:
 	double lastTime_;

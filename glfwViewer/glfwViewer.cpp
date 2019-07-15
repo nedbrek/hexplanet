@@ -6,7 +6,7 @@
 #include "../src/hexplanet.h"
 #include "../src/map_data.h"
 #include <FTGL/ftgl.h>
-#include <GL/glfw.h>
+#include <GLFW/glfw3.h>
 #include <fstream>
 #include <iostream>
 
@@ -19,7 +19,7 @@ std::ostream& operator<<(std::ostream &os, const glm::vec3 &v)
 	return os << '(' << v[0] << ',' << v[1] << ',' << v[2] << ')';
 }
 
-int initGraphics()
+int initGraphics(GLFWwindow *&main_window)
 {
 	// initialize GLFW
 	int rc = glfwInit();
@@ -30,13 +30,15 @@ int initGraphics()
 	}
 
 	// open main window
-	rc = glfwOpenWindow(1092, 614, 8, 8, 8, 8, 32, 0, GLFW_WINDOW);
-	if (rc != GL_TRUE)
+	main_window = glfwCreateWindow(1092, 614, "Main", NULL, NULL);
+	if (main_window == NULL)
 	{
 		std::cerr << "Failed to open GLFW window" << std::endl;
 		glfwTerminate();
 		return 1;
 	}
+	glfwMakeContextCurrent(main_window);
+
 	if (glewInit() != GLEW_OK) // must be after OpenGL context
 	{
 		std::cerr << "Failed to initialize GLEW." << std::endl;
@@ -57,7 +59,8 @@ int initGraphics()
 
 int main(int argc, char **argv)
 {
-	initGraphics();
+	GLFWwindow *main_window = NULL;
+	initGraphics(main_window);
 
 	const GLuint prgIdT = makeShaderProgram("vert.glsl", "frag.glsl");
 	if (!prgIdT)
@@ -216,19 +219,20 @@ int main(int argc, char **argv)
 			glEnableVertexAttribArray(tdPAttrib);
 		}
 
-		ctl.beginFrame(&camera);
+		ctl.beginFrame(main_window, &camera);
 
 		hud.updateVarLine(varPos, camera.position());
 		hud.render(*font);
 
 		glDrawArrays(GL_TRIANGLES, 0, p.numTriangles()*3);
 
-		glfwSwapBuffers();
+		glfwSwapBuffers(main_window);
+		glfwPollEvents();
 
-		if (glfwGetKey('P'))
+		if (glfwGetKey(main_window, GLFW_KEY_P) == GLFW_PRESS)
 			showTerrain = !showTerrain;
 
-		running = !glfwGetKey(GLFW_KEY_ESC) && glfwGetWindowParam(GLFW_OPENED);
+		running = glfwGetKey(main_window, GLFW_KEY_ESCAPE) == GLFW_RELEASE && !glfwWindowShouldClose(main_window);
 	}
 
 	delete font;
