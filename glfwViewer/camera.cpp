@@ -6,7 +6,7 @@ const double PI = std::atan(1)*4;
 
 Camera::Camera()
 : pos_(0, 0, -2.5)
-, tPos_(0, 0, 1)
+, tPos_(0, 0, 0)
 , headVec_(0, 1, 0)
 , fov_(PI/2)
 , aspectRatio_(16/9.)

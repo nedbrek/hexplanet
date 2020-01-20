@@ -13,6 +13,8 @@ public:
 
 private:
 	double lastTime_;
+	float theta_ = 0;
+	float dist_ = -2.5;
 };
 
 #endif

@@ -10,6 +10,8 @@ public:
 	/// constructor
 	Camera();
 
+	float nearClip() const { return nearClip_; }
+
 	///@return matrix for 2d projection to window space
 	glm::mat4 projection() const;
 
