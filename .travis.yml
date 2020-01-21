@@ -9,6 +9,9 @@ addons:
     packages:
       - g++-4.8
       - libglew-dev
+      - libglfw3-dev
+      - libftgl-dev
+      - libglm-dev
 
 install:
   - make
@@ -18,4 +21,6 @@ install:
 
 script:
   - make test
+  - cd ../glfwViewer
+  - make
 
