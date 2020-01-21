@@ -27,7 +27,7 @@ void Controls::beginFrame(GLFWwindow *main_window, Camera *cp)
 	if (glfwGetKey(main_window, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
 	{
 		dist_ += delta_t * speed;
-		constexpr float min_z = -1.0 - cp->nearClip();
+		const float min_z = -1.0 - cp->nearClip();
 		if (dist_ > min_z)
 			dist_ = min_z;
 	}
