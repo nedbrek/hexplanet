@@ -47,8 +47,22 @@ void Controls::beginFrame(GLFWwindow *main_window, Camera *cp)
 		if (theta_ < 0)
 			theta_ += TWO_PI;
 	}
-	position[0] = dist_ * sin(theta_);
-	position[2] = dist_ * cos(theta_);
+	if (glfwGetKey(main_window, GLFW_KEY_UP) == GLFW_PRESS)
+	{
+		phi_ += delta_t * speed;
+		if (phi_ > TWO_PI)
+			phi_ -= TWO_PI;
+	}
+	if (glfwGetKey(main_window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	{
+		phi_ -= delta_t * speed;
+		if (phi_ < 0)
+			phi_ += TWO_PI;
+	}
+
+	position[0] = dist_ * sinf(theta_) * cosf(phi_);
+	position[1] = dist_ * sinf(theta_) * sinf(phi_);
+	position[2] = dist_ * cosf(theta_);
 
 	cp->setPosition(position);
 
@@ -59,6 +73,9 @@ void Controls::beginFrame(GLFWwindow *main_window, Camera *cp)
 
 	// update matrix
 	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(glm::value_ptr(cp->view()));
+	glLoadIdentity();
+	glTranslatef(0, 0, dist_);
+	glRotatef(phi_*180/PI, 1, 0, 0);
+	glRotatef(theta_*180/PI, 0, 1, 0);
 }
 
