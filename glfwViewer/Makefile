@@ -1,5 +1,5 @@
 CXX ?= g++
-CXXFLAGS += -MP -MMD -Wall -g -O3 $(shell freetype-config --cflags) -std=c++11
+CXXFLAGS += -MP -MMD -Wall -g -O3 $(shell pkg-config --cflags freetype2) -std=c++11
 LDFLAGS += -Wall
 LIBS := -lglfw -lGLEW -lGL ../libHexPlanet.a -lftgl
 

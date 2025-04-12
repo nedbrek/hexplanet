@@ -43,5 +43,40 @@ protected:
 	std::vector<Line*> lines_;
 };
 
+class LineVar : public Line
+{
+public:
+	LineVar(const char *prefix, const std::string &initVal)
+	: prefix_(prefix)
+	, var_(initVal)
+	{
+	}
+
+	virtual std::string current() const
+	{
+		return prefix_ + var_;
+	}
+
+	void update(const std::string &newVal)
+	{
+		var_ = newVal;
+	}
+
+protected:
+	std::string prefix_;
+	std::string var_;
+};
+
+template<>
+inline
+void Hud::updateVarLine<std::string>(size_t id, const std::string &newVal)
+{
+	LineVar *l = id < lines_.size() ? dynamic_cast<LineVar*>(lines_[id]) : NULL;
+	if (l)
+	{
+		l->update(newVal);
+	}
+}
+
 #endif
 

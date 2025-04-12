@@ -109,8 +109,6 @@ int main(int argc, char **argv)
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-	glUseProgram(prgIdT);
-
 	GLuint positionVbo;
 	glGenBuffers(1, &positionVbo);
 	glBindBuffer(GL_ARRAY_BUFFER, positionVbo);
@@ -178,9 +176,6 @@ int main(int argc, char **argv)
 	const GLint tdTAttrib = glGetAttribLocation(prgIdT, "terrainData");
 	glVertexAttribIPointer(tdTAttrib, 3, GL_UNSIGNED_BYTE, 0, 0);
 
-	// plate
-	glUseProgram(prgIdP);
-
 	GLuint terrainPVbo;
 	glGenBuffers(1, &terrainPVbo);
 	glBindBuffer(GL_ARRAY_BUFFER, terrainPVbo);
@@ -197,6 +192,11 @@ int main(int argc, char **argv)
 	Controls ctl;
 
 	FTFont *font = new FTGLPixmapFont("/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf");
+	if (font->Error())
+	{
+		std::cout << "Error loading font." << std::endl;
+		return 1;
+	}
 	font->FaceSize(12);
 
 	Hud hud;
@@ -206,6 +206,12 @@ int main(int argc, char **argv)
 	bool running = true;
 	while (running)
 	{
+		ctl.beginFrame(main_window, &camera);
+
+		glUseProgram(0);
+		hud.updateVarLine(varPos, camera.position());
+		hud.render(*font);
+
 		if (showTerrain)
 		{
 			glDisableVertexAttribArray(tdPAttrib);
@@ -218,11 +224,6 @@ int main(int argc, char **argv)
 			glUseProgram(prgIdP);
 			glEnableVertexAttribArray(tdPAttrib);
 		}
-
-		ctl.beginFrame(main_window, &camera);
-
-		hud.updateVarLine(varPos, camera.position());
-		hud.render(*font);
 
 		glDrawArrays(GL_TRIANGLES, 0, p.numTriangles()*3);
 

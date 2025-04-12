@@ -13,46 +13,46 @@ vec3 colorForPlate(uint t)
 	uint tone = t & 3u;
 	uint hue = t & 0xfcu;
 
-	uint r = 0;
-	uint g = 0;
-	uint b = 0;
+	uint r = 0u;
+	uint g = 0u;
+	uint b = 0u;
 
 	switch (tone)
 	{
-	case 0: // dark gray
+	case 0u: // dark gray
 		r = hue >> 1;
 		g = hue >> 1;
 		b = hue >> 1;
 		break;
 
-	case 1: // green
+	case 1u: // green
 		g = hue;
 		break;
 
-	case 2: // blue
+	case 2u: // blue
 		b = hue;
 		break;
 
-	case 3: // red
+	case 3u: // red
 		r = hue;
 		break;
 
-	case 4: // green = blue (aqua)
+	case 4u: // green = blue (aqua)
 		g = hue;
 		b = hue;
 		break;
 
-	case 5: // green = red (orange?)
+	case 5u: // green = red (orange?)
 		r = hue;
 		g = hue;
 		break;
 
-	case 6: // blue = red (purple?)
+	case 6u: // blue = red (purple?)
 		r = hue;
 		b = hue;
 		break;
 
-	case 7: // light gray
+	case 7u: // light gray
 		r = hue;
 		g = hue;
 		b = hue;
